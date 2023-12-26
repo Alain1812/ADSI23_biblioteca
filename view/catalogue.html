@@ -21,7 +21,7 @@
     <hr class="hr" />
 
     <div class="row">
-
+    
         {% for book in books %}
             <div class="col-lg-4 col-md-6 col-sm-12 my-2">
                 <div class="card d-flex flex-row" style="width: 18rem;">
@@ -34,6 +34,11 @@
                         {% if book.description: %}
                         <p class="card-text">{{book.description}}</p>
                         {% endif %}
+                    <!-- Reserve button -->
+                    <form action="/reserve" method="post">
+                        <input type="hidden" name="copy_id" value="{{ book.id }}">
+                        <button type="submit" class="btn btn-primary">Reserve</button>
+                    </form>
                     </div>
                 </div>
             </div>
@@ -72,5 +77,19 @@
 
 
 </div>
+
+    {% if not user_logged_in %}
+        <script type="text/javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                var reserveButtons = document.querySelectorAll('form[action="/reserve"]');
+                reserveButtons.forEach(function(button) {
+                    button.addEventListener('submit', function(event) {
+                        alert('Please log in to reserve a book.');
+                        event.preventDefault();
+                    });
+                });
+            });
+        </script>
+    {% endif %}
 
 {% endblock %}
