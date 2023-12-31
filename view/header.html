@@ -1,12 +1,12 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- ... resto del head ... -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Library</title>
     <link href="css/bootstrap.css" rel="stylesheet">
     <link rel="stylesheet" href="css/font-awesome.min.css">
-
     <script src="js/bootstrap.bundle.js"></script>
   </head>
   <body>
@@ -19,19 +19,27 @@
 
         <ul class="nav nav-pills">
           <li class="nav-item"><a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}" aria-current="page">Home</a></li>
-          <li class="nav-item"><a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}" aria-current="page">Historial Reservas</a></li>
           <li class="nav-item"><a href="/catalogue" class="nav-link {% if request.path == '/catalogue' %}active{% endif %}">Catalogue</a></li>
+
+
+
+
+          <!-- Condición para mostrar elementos solo si el usuario está registrado -->
           {% if 'user' in request.__dict__ and request.user and request.user.token: %}
-          <li class="nav-item"><span class="nav-link disabled">{{request.user.username}}</span></li>
-          <li class="nav-item"><a href="/logout?path={{request.path}}" class="nav-link"><i class="fa fa-sign-out fa-lg"></i></a></li>
-          {% else %}
-          <li class="nav-item"><a href="/login" class="nav-link {% if request.path == '/login' %}active{% endif %}">Login</a></li>
+            <li class="nav-item"><a href="/recomendaciones" class="nav-link {% if request.path == '/recomendaciones' %}active{% endif %}">Recomendaciones</a></li>
+            <li class="nav-item"><a href="/forums" class="nav-link {% if request.path == '/forums' %}active{% endif %}">Foros</a></li>
+            <li class="nav-item"><a href="/mis_reservas" class="nav-link {% if request.path == '/mis_reservas' %}active{% endif %}">Historial</a></li>
+            <li class="nav-item"><span class="nav-link disabled">{{request.user.username}}</span></li>
+          {% if request.user.admin%}
+            <li class="nav-item"><a href="/admin" class="nav-link {% if request.path == '/admin' %}active{% endif %}">Admin</a></li>
           {% endif %}
-
-
-
-
-
+            <li class="nav-item"><a href="/logout?path={{request.path}}" class="nav-link"><i class="fa fa-sign-out fa-lg"></i></a></li>
+          {% else %}
+            <li class="nav-item"><a href="/login" class="nav-link {% if request.path == '/login' %}active{% endif %}">Login</a></li>
+          {% endif %}
         </ul>
       </header>
     </div>
+    <!-- ... resto del cuerpo de la página ... -->
+  </body>
+</html>

@@ -1,0 +1,38 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container p-5 my-5 border">
+
+    <div class="row">
+        <div class="col-md-4">
+            <!-- Mostrar la imagen de la portada del libro, si está disponible -->
+            {% if book.cover %}
+                <img src="{{ book.cover }}" class="img-fluid" alt="Portada del libro">
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <h1>{{ book.title }}</h1>
+            <p><strong>Autor:</strong> {{ book.author }}</p>
+            <!-- Más detalles del libro pueden ser añadidos aquí -->
+        </div>
+    </div>
+
+    <div id="reviews" class="mt-4">
+    <h2>Reseñas</h2>
+    {% for review in reviews %}
+    <div class="review">
+        <p><strong>Usuario:</strong> {{ review.user_id }}</p> <!-- Asumiendo que hay un user_id en la reseña -->
+        <p><strong>Calificación:</strong> {{ review.rating }}</p> <!-- Asumiendo que hay una calificación -->
+        <p><strong>Comentario:</strong> {{ review.comment }}</p> <!-- Asumiendo que hay un comentario -->
+        <!-- Puedes agregar más detalles de cada reseña aquí -->
+    </div>
+    {% else %}
+    <p>No hay reseñas para este libro.</p>
+    {% endfor %}
+    </div>
+
+    <a href="/catalogue" class="btn btn-primary mt-3">Volver al Catálogo</a>
+
+</div>
+{% endblock %}

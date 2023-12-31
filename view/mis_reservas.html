@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-4">
+    <h1>Mis Reservas</h1>
+    {% if reservas %}
+    <ul>
+    {% for reserva in reservas %}
+        <li>
+            <a href="/reserve/details/{{ reserva.id }}">Reserva ID: {{ reserva.id }}</a> -
+            Libro ID: {{ reserva.bookID }},
+            Estado: {{ reserva.estado }},
+            Fecha de Reserva: {{ reserva.fecha_reserva }},
+            Fecha de Finalización: {{ reserva.fecha_fin }}
+            <a href="/reserve/edit/{{ reserva.id }}">Editar</a>
+            <a href="/reserve/return/{{ reserva.id }}">Devolver</a>
+            {% if reserva.estado == 'FINALIZADA' %}
+                <a href="/reserve/rate/{{ reserva.id }}">Puntuar</a>
+            {% endif %}
+
+        </li>
+    {% endfor %}
+
+
+    </ul>
+    {% else %}
+    <p>No tienes reservas.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+

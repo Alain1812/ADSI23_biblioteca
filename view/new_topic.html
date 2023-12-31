@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Crear un Nuevo Tema</h1>
+<form action="/forums/new" method="post">
+    <div>
+        <label for="title">Título:</label>
+        <input type="text" id="title" name="title" required>
+    </div>
+
+    <input type="hidden" name="emailUser" value="{{ emailUser }}">
+    <div>
+        <input type="submit" value="Crear Tema">
+    </div>
+</form>
+{% endblock %}

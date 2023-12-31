@@ -13,17 +13,18 @@ class Session:
         return f"{self.hash} ({self.time})"
 
 class User:
-    def __init__(self, id, username, email):
+    def __init__(self, id, username, email, admin=False):
         self.id = id
         self.username = username
         self.email = email
+        self.admin = admin
 
     def __str__(self):
-        return f"{self.username} ({self.email})"
+        return f"{self.username} ({self.email}, {self.admin})"
 
     def new_session(self):
         now = float(datetime.datetime.now().time().strftime("%Y%m%d%H%M%S.%f"))
-        session_hash = hash_password(str(self.id)+str(now))
+        session_hash = hash_password(str(self.id) + str(now))
         db.insert("INSERT INTO Session VALUES (?, ?, ?)", (session_hash, self.id, now))
         return Session(session_hash, now)
 
@@ -32,19 +33,11 @@ class User:
         if len(s) > 0:
             now = float(datetime.datetime.now().strftime("%Y%m%d%H%M%S.%f"))
             session_hash_new = hash_password(str(self.id) + str(now))
-            db.update("UPDATE Session SET session_hash = ?, last_login=? WHERE session_hash = ? and user_id = ?", (session_hash_new, now, session_hash, self.id))
+            db.update("UPDATE Session SET session_hash = ?, last_login=? WHERE session_hash = ? and user_id = ?",
+                      (session_hash_new, now, session_hash, self.id))
             return Session(session_hash_new, now)
         else:
             return None
 
     def delete_session(self, session_hash):
         db.delete("DELETE FROM Session WHERE session_hash = ? AND user_id = ?", (session_hash, self.id))
-
-    # Methods to handle reservations
-    def make_reservation(self, copy_id, start_date, end_date):
-        db.execute("INSERT INTO Reservation (user_id, copy_id, start_date, end_date) VALUES (?, ?, ?, ?)",
-                   (self.id, copy_id, start_date, end_date))
-        db.commit()
-
-    def get_reservations(self):
-        return db.select("SELECT * FROM Reservation WHERE user_id=?", (self.id,))

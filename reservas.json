@@ -1,0 +1,52 @@
+{
+  "reservas": [
+    {
+      "id": 1,
+      "emailUser": "james@gmail.com",
+      "bookID": 1,
+      "estado": "Activa",
+      "fecha_reserva": "2023-12-31 00:00:00",
+      "fecha_fin": "2024-01-06 00:00:00"
+    },
+    {
+      "id": 2,
+      "emailUser": "james@gmail.com",
+      "bookID": 3,
+      "estado": "Activa",
+      "fecha_reserva": "2023-12-31 00:00:00",
+      "fecha_fin": "2024-01-13 00:00:00"
+    },
+    {
+      "id": 3,
+      "emailUser": "james@gmail.com",
+      "bookID": 5,
+      "estado": "Activa",
+      "fecha_reserva": "2023-12-31 00:00:00",
+      "fecha_fin": "2024-01-05 00:00:00"
+    },
+    {
+      "id": 4,
+      "emailUser": "james@gmail.com",
+      "bookID": 7,
+      "estado": "FINALIZADA",
+      "fecha_reserva": "2023-12-31 00:00:00",
+      "fecha_fin": "2024-01-14 00:00:00"
+    },
+    {
+      "id": 5,
+      "emailUser": "james@gmail.com",
+      "bookID": 6,
+      "estado": "Activa",
+      "fecha_reserva": "2023-12-31 00:00:00",
+      "fecha_fin": "2024-02-29 00:00:00"
+    },
+      {
+      "id": 6,
+      "emailUser": "ejemplo@gmail.com",
+      "bookID": 6,
+      "estado": "Activa",
+      "fecha_reserva": "2023-12-31 00:00:00",
+      "fecha_fin": "2024-01-14 00:00:00"
+    }
+  ]
+}

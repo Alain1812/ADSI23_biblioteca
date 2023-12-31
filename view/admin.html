@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<head>Control administrador</head>
+
+    <h3>Añadir Nuevo Usuario</h3>
+    <form action="/ruta_para_agregar_usuario" method="post">
+        <label for="username">Nombre de Usuario:</label><br>
+        <input type="text" id="username" name="username" required><br>
+
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" required><br>
+
+        <label for="password">Contraseña:</label><br>
+        <input type="password" id="password" name="password" required><br>
+
+        <label for="admin">Administrador:</label>
+        <input type="checkbox" id="admin" name="admin" value="1"><br>
+
+        <input type="submit" value="Agregar Usuario">
+    </form>
+
+    <h3>Eliminar Usuario</h3>
+    <form action="/ruta_para_eliminar_usuario" method="post">
+        <label for="email">Email:</label><br>
+        <input type="email" id="emailEliminar" name="emailEliminar" required><br>
+
+        <input type="submit" value="Eliminar Usuario">
+    </form>
+
+    <h3>Añadir Nuevo Libro</h3>
+    <form action="/ruta_para_agregar_libro" method="post">
+        <label for="title">Título:</label><br>
+        <input type="text" id="title" name="title" required><br>
+
+        <label for="author">Autor (ID):</label><br>
+        <input type="number" id="author" name="author" required><br>
+
+        <label for="cover">Portada (URL):</label><br>
+        <input type="text" id="cover" name="cover"><br>
+
+        <label for="description">Descripción:</label><br>
+        <textarea id="description" name="description"></textarea><br>
+
+        <input type="submit" value="Agregar Libro">
+    </form>
+
+{% endblock %}

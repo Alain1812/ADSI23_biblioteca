@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container p-5 my-5 border">
+
+    <div class="row">
+        {% for book in books %}
+            <div class="col-lg-4 col-md-6 col-sm-12 my-2">
+                <div class="card d-flex flex-row" style="width: 18rem;">
+                    {% if book.cover: %}
+                        <img src="{{book.cover}}" class="rounded" style="max-width: 6rem; height: fit-content;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{book.title}}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">{{book.author}}</h6>
+                        {% if book.description: %}
+                        <p class="card-text">{{book.description}}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <hr class="hr" />
+
+    <!-- Actualizar la ruta de la paginación para apuntar a la página de recomendaciones -->
+    <nav>
+      <ul class="pagination justify-content-center">
+          <!-- Ajustar los enlaces para que apunten a la ruta de recomendaciones -->
+          <!-- ... -->
+      </ul>
+    </nav>
+
+</div>
+
+{% endblock %}
+<div id="reserveModal" class="modal" style="display: none;"></div>

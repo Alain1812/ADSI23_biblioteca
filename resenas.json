@@ -1,0 +1,22 @@
+{
+  "resenas": [
+    {
+        "emailUser" : "jhon@gmail.com",
+		"libro_id" : 3,
+		"resena" : "malisimo",
+		"puntuacion" :  1.5
+    },
+    {
+        "emailUser": "james@gmail.com",
+        	"libro_id" : 1,
+        	"resena" : "Mejor parte el final",
+        	"puntuacion" : 1.0
+    },
+    {
+        "emailUser": "ejemplo@gmail.com",
+        	"libro_id" : 2,
+        	"resena" : "Magnifico",
+        	"puntuacion" : 10.0
+    }
+  ]
+}

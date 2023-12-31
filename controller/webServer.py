@@ -1,5 +1,8 @@
 from .LibraryController import LibraryController
-from flask import Flask, render_template, request, make_response, redirect
+from flask import Flask, render_template, request, make_response, redirect , session, url_for, flash
+from model import User
+from datetime import datetime, timedelta
+import sqlite3
 
 app = Flask(__name__, static_url_path='', static_folder='../view/static', template_folder='../view/')
 
@@ -13,7 +16,7 @@ def get_logged_user():
 		token = request.cookies.get('token')
 		time = request.cookies.get('time')
 		if token and time:
-			request.user = library.get_user_cookies(token, int(time))
+			request.user = library.get_user_cookies(token, float(time))
 			if request.user:
 				request.user.token = token
 
@@ -42,6 +45,30 @@ def catalogue():
 	return render_template('catalogue.html', books=books, title=title, author=author, current_page=page,
 	                       total_pages=total_pages, max=max, min=min)
 
+@app.route('/recomendaciones')
+def recommendations():
+    if not request.user:
+        return redirect(url_for('login'))
+
+    page = int(request.values.get("page", 1))
+    number_of_books_per_page = 6  # O el número que prefieras
+
+    # Obtener las recomendaciones para el usuario
+    recommended_books = library.get_user_recommendations(request.user)
+    print("Libros recomendados:", recommended_books)
+
+    # Calcular la paginación
+    total_books = len(recommended_books)
+    total_pages = (total_books // number_of_books_per_page) + (1 if total_books % number_of_books_per_page > 0 else 0)
+
+    # Obtener los libros para la página actual
+    start = (page - 1) * number_of_books_per_page
+    end = start + number_of_books_per_page
+    books_to_display = recommended_books[start:end]
+
+    # Renderizar la plantilla con los libros recomendados para la página actual
+    return render_template('recomendaciones.html', books=books_to_display, current_page=page, total_pages=total_pages, max=max, min=min)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -56,7 +83,10 @@ def login():
 		resp.set_cookie('token', session.hash)
 		resp.set_cookie('time', str(session.time))
 	else:
-		resp = make_response(render_template('login.html'))
+		if request.method == 'POST':
+			return redirect('/login')
+		else:
+			resp = render_template('login.html')
 	return resp
 
 
@@ -70,3 +100,198 @@ def logout():
 		request.user.delete_session(request.user.token)
 		request.user = None
 	return resp
+
+
+@app.route('/forums')
+def forums():
+    topics = library.list_topics()
+    return render_template('forum.html', topics=topics)
+
+@app.route('/forums/<int:topic_id>')
+def forum_topic(topic_id):
+	topic, replies = library.show_topic(topic_id)  # Asegurarse de capturar ambos valores
+	return render_template('topic.html', topic=topic, replies=replies)
+
+@app.route('/forums/new', methods=['GET', 'POST'])
+def new_forum_topic():
+    if request.method == 'POST':
+        title = request.form['title']
+        if not hasattr(request, 'user') or not request.user:
+            return redirect(url_for('login'))
+        emailUser = request.user.email  # Obtener el correo electrónico desde el objeto user
+        library.create_topic(title, emailUser)
+        return redirect('/forums')
+    return render_template('new_topic.html')
+
+@app.route('/forums/<int:topic_id>/reply', methods=['POST'])
+def post_reply(topic_id):
+    content = request.form['content']
+    if not hasattr(request, 'user') or not request.user:
+        return redirect(url_for('login'))
+    emailUser = request.user.email  # Obtener el correo electrónico desde el objeto user
+    library.post_reply(topic_id, emailUser, content)
+    return redirect(url_for('forum_topic', topic_id=topic_id))
+
+
+@app.route('/admin', methods=['GET'])
+def admin_page():
+    return render_template('admin.html')  # Asumiendo que tu archivo HTML se llama 'admin.html'
+
+@app.route('/ruta_para_agregar_usuario', methods=['POST'])
+def agregar_usuario():
+    username = request.form['username']
+    email = request.form['email']
+    password = request.form['password']
+    admin = request.form.get('admin', '0')
+    admin_value = 1 if admin == '1' else 0
+    resultado = library.agregar_usuario(username, email, password, admin_value)
+    return render_template('resultado.html', mensaje=resultado)
+
+@app.route('/ruta_para_eliminar_usuario', methods=['POST'])
+def eliminar_usuario():
+    emailEliminar = request.form['emailEliminar']
+    resultado = library.eliminar_usuario(emailEliminar)
+    return render_template('resultado.html', mensaje=resultado)
+
+@app.route('/ruta_para_agregar_libro', methods=['POST'])
+def agregar_libro():
+    title = request.form['title']
+    author = request.form['author']
+    cover = request.form['cover']
+    description = request.form['description']
+    resultado = library.agregar_libro(title, author, cover, description)
+    return render_template('resultado.html', mensaje=resultado)
+	
+@app.route('/review/book/<int:book_id>', methods=['GET'])
+def review_book(book_id):
+    # Obtener información del libro
+    book_details = library.get_book_info(book_id)
+
+    # Suponiendo que existe un método para obtener las reseñas por el ID del libro
+    reviews = library.get_reviews_by_book_id(book_id)
+
+    if book_details:
+        # Renderizar 'resenas.html' con la información del libro y sus reseñas
+        return render_template('resenas.html', book=book_details, reviews=reviews)
+    else:
+        # Manejar el caso en que el libro no se encuentre (p.ej., redirigir a una página de error)
+        return redirect(url_for('book_not_found'))
+
+
+
+
+#RESERVAS
+@app.route('/reserve/book/<int:book_id>')
+def reserve_book(book_id):
+    # Obtener la información del libro usando 'book_id'
+    book_info = library.get_book_info(book_id)
+    if book_info is None:
+        return "Libro no encontrado", 404
+
+    # Verificar si hay un usuario autenticado y obtener su email
+    if hasattr(request, 'user') and request.user:
+        emailUser = request.user.email
+    else:
+        # Si no hay usuario, redirigir al login
+        return redirect(url_for('login'))
+
+    return render_template('new_reserva.html', book=book_info, emailUser=emailUser)
+
+
+@app.route('/process_reservation', methods=['POST'])
+def process_reservation():
+    if 'user' in dir(request) and request.user and request.user.token:
+        emailUser = request.user.email
+    else:
+        flash('No estás autenticado. Por favor, inicia sesión.')
+        return redirect(url_for('login'))
+
+    book_id = request.form.get('book_id')
+    start_date = request.form.get('startDate')
+    end_date = request.form.get('endDate')
+
+    start_date = datetime.strptime(start_date, '%Y-%m-%d')
+    end_date = datetime.strptime(end_date, '%Y-%m-%d')
+
+    # Comprobar las restricciones
+    if not library.can_reserve_book(book_id):
+        flash('Este libro ya ha alcanzado el límite máximo de reservas activas.')
+        return redirect(url_for('some_page_to_redirect'))
+
+    if not library.can_user_reserve_book(emailUser, book_id):
+        flash('Ya tienes una reserva activa para este libro.')
+        return redirect(url_for('some_page_to_redirect'))
+
+    if not library.can_user_make_more_reservations(emailUser):
+        flash('Has alcanzado el límite máximo de reservas activas.')
+        return redirect(url_for('some_page_to_redirect'))
+
+    if (end_date - start_date).days > 60:
+        flash('La fecha de finalización no puede exceder los dos meses desde la fecha de inicio.')
+        return redirect(url_for('new_reserva'))
+
+    # Procesar la reserva
+    success = library.create_reserva(emailUser, book_id, start_date, end_date)
+
+    if success:
+        return redirect(url_for('mis_reservas'))
+    else:
+        flash('Hubo un problema al procesar tu reserva.')
+        return redirect(url_for('index'))
+
+@app.route('/mis_reservas')
+def mis_reservas():
+    if 'user' in dir(request) and request.user and request.user.token:
+        emailUser = request.user.email
+
+        # Actualizar reservas vencidas antes de mostrar las reservas del usuario
+        library.actualizar_reservas_vencidas()
+
+        reservas = library.get_user_reservas(emailUser)
+        return render_template('mis_reservas.html', reservas=reservas)
+    else:
+        flash('No estás autenticado. Por favor, inicia sesión.')
+        return redirect(url_for('login'))
+
+
+@app.route('/reserve/details/<int:reserva_id>')
+def reserva_details(reserva_id):
+    detalles_reserva = library.get_reserva_details(reserva_id)
+    print(detalles_reserva)
+    if detalles_reserva:
+        return render_template('reserva_details.html', detalles=detalles_reserva)
+    else:
+        flash('No se encontraron detalles para la reserva solicitada.')
+        return redirect(url_for('mis_reservas'))
+
+@app.route('/reserve/edit/<int:reserva_id>', methods=['GET', 'POST'])
+def edit_reserva(reserva_id):
+    detalles_reserva = library.get_reserva_details(reserva_id)
+
+    if request.method == 'POST':
+        nueva_fecha_fin_str = request.form.get('fecha_fin')
+        try:
+            nueva_fecha_fin = datetime.strptime(nueva_fecha_fin_str, '%Y-%m-%d')
+            fecha_reserva_str = detalles_reserva['fecha_reserva']
+            fecha_reserva = datetime.strptime(fecha_reserva_str.split(' ')[0], '%Y-%m-%d')
+        except ValueError as e:
+            flash(f"Error al procesar la fecha: {e}")
+            return redirect(url_for('edit_reserva', reserva_id=reserva_id))
+
+        # Verifica que la nueva fecha no exceda los 60 días desde la fecha de reserva
+        if nueva_fecha_fin - fecha_reserva > timedelta(days=60):
+            flash('La fecha de finalización no puede exceder los 60 días desde la fecha de inicio.')
+            return redirect(url_for('edit_reserva', reserva_id=reserva_id))
+
+        # Si la validación es correcta, actualiza la reserva
+        library.update_reserva(reserva_id, nueva_fecha_fin_str)
+        return redirect(url_for('mis_reservas'))
+
+    return render_template('edit_reserva.html', detalles=detalles_reserva)
+
+
+@app.route('/reserve/return/<int:reserva_id>')
+def return_reserva(reserva_id):
+    library.return_reserva(reserva_id)
+    return redirect(url_for('mis_reservas'))
+

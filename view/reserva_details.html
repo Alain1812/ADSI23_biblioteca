@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-4">
+    <h1>Detalles de la Reserva</h1>
+    <ul>
+        <li>ID de Reserva: {{ detalles.id }}</li>
+        <li>ID del Libro: {{ detalles.bookID }}</li>
+        <li>Estado: {{ detalles.estado }}</li>
+        <li>Fecha de Reserva: {{ detalles.fecha_reserva }}</li>
+        <li>Fecha de Finalización: {{ detalles.fecha_fin }}</li>
+    </ul>
+</div>
+
+{% endblock %}
+
+
+

@@ -1,0 +1,54 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-md-4">
+            {% if book.cover %}
+                <img src="{{ book.cover }}" class="img-fluid" alt="Portada del libro">
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <h1>{{ book.title }}</h1>
+            <p><strong>Autor:</strong> {{ book.author }}</p>
+            <p><strong>Descripción:</strong> {{ book.description }}</p>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col">
+            <h2>Formulario de Reserva</h2>
+            <form action="/process_reservation" method="POST">
+                <input type="hidden" name="book_id" value="{{ book.id }}">
+                <input type="hidden" name="emailUser" value="{{ emailUser }}">
+                <div class="mb-3">
+                    <label for="startDate" class="form-label">Fecha de inicio:</label>
+                    <input type="date" id="startDate" name="startDate" class="form-control" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="endDate" class="form-label">Fecha de finalización:</label>
+                    <input type="date" id="endDate" name="endDate" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Reservar</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.onload = function() {
+        // Establecer la fecha de inicio a hoy y hacerla de solo lectura
+        let startDate = document.getElementById('startDate');
+        let today = new Date().toISOString().split('T')[0];
+        startDate.value = today;
+
+        // Establecer la fecha máxima de finalización a dos meses desde hoy
+        let endDate = document.getElementById('endDate');
+        let maxDate = new Date();
+        maxDate.setMonth(maxDate.getMonth() + 2);
+        endDate.max = maxDate.toISOString().split('T')[0];
+    };
+</script>
+
+{% endblock %}
