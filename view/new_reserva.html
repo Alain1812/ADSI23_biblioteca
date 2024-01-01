@@ -1,24 +1,28 @@
-
 {% extends 'base.html' %}
 
 {% block content %}
 <div class="container my-4">
-    <div class="row">
+    <!-- Mensaje de Error -->
+    {% if error_message %}
+        <div class="alert alert-danger">{{ error_message }}</div>
+    {% endif %}
+
+    <div class="row mb-4">
         <div class="col-md-4">
             {% if book.cover %}
-                <img src="{{ book.cover }}" class="img-fluid" alt="Portada del libro">
+                <img src="{{ book.cover }}" class="img-fluid rounded" alt="Portada del libro">
             {% endif %}
         </div>
         <div class="col-md-8">
-            <h1>{{ book.title }}</h1>
+            <h1 class="mb-3">{{ book.title }}</h1>
             <p><strong>Autor:</strong> {{ book.author }}</p>
             <p><strong>Descripción:</strong> {{ book.description }}</p>
         </div>
     </div>
 
-    <div class="row mt-4">
-        <div class="col">
-            <h2>Formulario de Reserva</h2>
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">Formulario de Reserva</h2>
             <form action="/process_reservation" method="POST">
                 <input type="hidden" name="book_id" value="{{ book.id }}">
                 <input type="hidden" name="emailUser" value="{{ emailUser }}">

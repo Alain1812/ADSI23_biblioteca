@@ -2,17 +2,31 @@
 
 {% block content %}
 <div class="container my-4">
+    <!-- Mensaje de Error -->
+    {% if error_message %}
+        <div class="alert alert-danger">{{ error_message }}</div>
+    {% endif %}
+
     <h1>Detalles de la Reserva</h1>
-    <ul>
-        <li>ID de Reserva: {{ detalles.id }}</li>
-        <li>ID del Libro: {{ detalles.bookID }}</li>
-        <li>Estado: {{ detalles.estado }}</li>
-        <li>Fecha de Reserva: {{ detalles.fecha_reserva }}</li>
-        <li>Fecha de Finalización: {{ detalles.fecha_fin }}</li>
-    </ul>
+    {% if detalles %}
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Información de la Reserva</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>ID de Reserva:</strong> {{ detalles.id }}</li>
+                    <li class="list-group-item"><strong>Título del Libro:</strong> {{ detalles.titulo_libro }}</li>
+                    <li class="list-group-item"><strong>Autor:</strong> {{ detalles.nombre_autor }}</li>
+                    <li class="list-group-item"><strong>Estado:</strong> {{ detalles.estado }}</li>
+                    <li class="list-group-item"><strong>Fecha de Reserva:</strong> {{ detalles.fecha_reserva }}</li>
+                    <li class="list-group-item"><strong>Fecha de Finalización:</strong> {{ detalles.fecha_fin }}</li>
+                </ul>
+            </div>
+        </div>
+    {% else %}
+        <p class="text-center">No se encontraron detalles para esta reserva.</p>
+    {% endif %}
 </div>
-
 {% endblock %}
-
-
 

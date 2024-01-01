@@ -28,7 +28,7 @@
       "id": 4,
       "emailUser": "james@gmail.com",
       "bookID": 7,
-      "estado": "FINALIZADA",
+      "estado": "Finalizada",
       "fecha_reserva": "2023-12-31 00:00:00",
       "fecha_fin": "2024-01-14 00:00:00"
     },

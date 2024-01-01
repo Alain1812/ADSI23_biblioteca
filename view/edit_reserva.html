@@ -2,19 +2,45 @@
 
 {% block content %}
 <div class="container my-4">
-    <h1>Editar Reserva</h1>
-    <form action="{{ url_for('edit_reserva', reserva_id=detalles.id) }}" method="post">
-        <div class="form-group">
-            <label for="fecha_fin">Nueva Fecha de Finalización:</label>
-            {% if detalles.fecha_fin is string %}
-                <input type="date" id="fecha_fin" name="fecha_fin" class="form-control"
-                       value="{{ detalles.fecha_fin }}" required>
-            {% else %}
-                <input type="date" id="fecha_fin" name="fecha_fin" class="form-control"
-                       value="{{ detalles.fecha_fin.strftime('%Y-%m-%d') }}" required>
-            {% endif %}
+    <!-- Mensaje de Error -->
+    {% if error_message %}
+        <div class="alert alert-danger">{{ error_message }}</div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-header">
+            <h1 class="card-title">Editar Reserva</h1>
         </div>
-        <button type="submit" class="btn btn-primary">Actualizar Reserva</button>
-    </form>
+        <div class="card-body">
+            <form action="{{ url_for('edit_reserva', reserva_id=detalles.id) }}" method="post">
+                <div class="form-group">
+                    <label for="fecha_fin">Nueva Fecha de Finalización:</label>
+                        <input type="date" id="fecha_fin" name="fecha_fin" class="form-control"
+                               {% if detalles.fecha_fin is string %}
+                                   value="{{ detalles.fecha_fin }}"
+                               {% else %}
+                                   value="{{ detalles.fecha_fin.strftime('%Y-%m-%d') }}"
+                               {% endif %}>
+
+
+                </div>
+                <button type="submit" class="btn btn-primary">Actualizar Reserva</button>
+            </form>
+        </div>
+    </div>
 </div>
+
+<style>
+    .container {
+        padding-top: 20px;
+    }
+    .card-header {
+        background-color: #007bff;
+        color: white;
+    }
+    .btn-primary {
+        background-color: #0056b3;
+        border-color: #004085;
+    }
+</style>
 {% endblock %}

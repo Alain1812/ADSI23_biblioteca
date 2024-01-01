@@ -141,44 +141,6 @@ class LibraryController:
         else:
             return None
 
-    def save_reservation(user_id, book_id, start_date, end_date):
-        try:
-            # Convertir las fechas de cadena a objetos datetime
-            start_date = datetime.strptime(start_date, '%Y-%m-%d')
-            end_date = datetime.strptime(end_date, '%Y-%m-%d')
-        except ValueError as ve:
-            # Error de formato de fecha
-            return {"success": False, "message": f"Error en el formato de la fecha: {ve}"}
-
-        try:
-            # Conectar a la base de datos
-            conn = sqlite3.connect("datos.db", check_same_thread=False)
-            cursor = conn.cursor()
-
-            # Comprobar si el libro está disponible
-            cursor.execute("SELECT COUNT(*) FROM Reserva WHERE ID_Libro = ? AND Estado = 'Activa'", (book_id,))
-            if cursor.fetchone()[0] > 0:
-                return {"success": False, "message": "El libro ya está reservado."}
-
-            # Comprobar si el usuario ya tiene 3 reservas
-            cursor.execute("SELECT COUNT(*) FROM Reserva WHERE ID_Usuario = ? AND Estado = 'Activa'", (user_id,))
-            if cursor.fetchone()[0] >= 3:
-                return {"success": False, "message": "El usuario ya tiene 3 reservas activas."}
-
-            # Insertar la reserva en la base de datos
-            cursor.execute(
-                "INSERT INTO Reserva (ID_Usuario, ID_Libro, Estado, Fecha_Reserva, Fecha_Vencimiento) VALUES (?, ?, 'Activa', ?, ?)",
-                (user_id, book_id, start_date, end_date))
-            conn.commit()
-
-        except sqlite3.Error as e:
-            # Error de base de datos
-            return {"success": False, "message": f"Error en la base de datos: {e}"}
-
-        finally:
-            conn.close()
-
-        return {"success": True, "message": "Reserva realizada con éxito."}
 
     def get_user_recommendations(self, user, number_of_books=5):
         """
@@ -327,7 +289,7 @@ class LibraryController:
 
 
     def return_reserva(self, reserva_id):
-        db.update("UPDATE Reserva SET estado = 'FINALIZADA' WHERE id = ?", (reserva_id,))
+        db.update("UPDATE Reserva SET estado = 'Finalizada' WHERE id = ?", (reserva_id,))
 
 
     def can_reserve_book(self, book_id):
@@ -355,7 +317,7 @@ class LibraryController:
         fecha_limite_str = fecha_limite.strftime('%Y-%m-%d %H:%M:%S')
 
         # Usar db.update para ejecutar la sentencia SQL de actualización
-        db.update("UPDATE Reserva SET estado = 'FINALIZADA' WHERE fecha_reserva <= ? AND estado = 'Activa'",
+        db.update("UPDATE Reserva SET estado = 'Finalizada' WHERE fecha_reserva <= ? AND estado = 'Activa'",
                   (fecha_limite_str,))
 
 
