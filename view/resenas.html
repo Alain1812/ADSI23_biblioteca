@@ -22,9 +22,10 @@
     <h2>Reseñas</h2>
     {% for review in reviews %}
     <div class="review">
-        <p><strong>Usuario:</strong> {{ Resena.email_user }}</p> <!-- Asumiendo que hay un user_id en la reseña -->
-        <p><strong>Calificación:</strong> {{ Resena.puntuacion }}</p> <!-- Asumiendo que hay una calificación -->
-        <p><strong>Comentario:</strong> {{ Resena.resena }}</p> <!-- Asumiendo que hay un comentario -->
+        <p><strong>Usuario:</strong> {{ review.email_user }}</p>
+        <p><strong>Calificación:</strong> {{ review.puntuacion }}</p>
+        <p><strong>Comentario:</strong> {{ review.resena }}</p>
+-->
         <!-- Puedes agregar más detalles de cada reseña aquí -->
     </div>
     {% else %}
