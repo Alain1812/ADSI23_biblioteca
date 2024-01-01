@@ -132,9 +132,12 @@ for user in usuarios:
 
 	con.commit()
 
-#for resena in resenas:
-	#cur.execute("INSERT INTO Resena (email_user, libro_id, mensaje, puntuacion) VALUES (?, ?, ?, ?)", (resena['email_user'], resena['libro_id'], resena['mensaje'], resena['puntuacion']))
-	#con.commit()
+for resena in resenas:
+    cur.execute(
+        "INSERT INTO Resena (email_user, libro_id, mensaje, puntuacion) VALUES (?, ?, ?, ?)",
+        (resena['emailUser'], resena['libro_id'], resena['resena'], resena['puntuacion'])
+    )
+    con.commit()
 
 for reserva in reservas:
 	cur.execute("INSERT INTO Reserva (id, emailUser, bookID, estado, fecha_reserva, fecha_fin) VALUES (?, ?, ?, ?, ?, ?)",
