@@ -17,6 +17,12 @@
         	"libro_id" : 2,
         	"resena" : "Magnifico",
         	"puntuacion" : 10.0
+    },
+    {
+        "emailUser": "ejemplo@gmail.com",
+        	"libro_id" : 1,
+        	"resena" : "El james no tiene ni idea me ha encantado",
+        	"puntuacion" : 10.0
     }
   ]
 }
