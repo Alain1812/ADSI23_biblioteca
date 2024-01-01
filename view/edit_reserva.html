@@ -1,28 +1,26 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container my-4">
+<div class="container mt-5">
     <!-- Mensaje de Error -->
     {% if error_message %}
         <div class="alert alert-danger">{{ error_message }}</div>
     {% endif %}
 
-    <div class="card">
-        <div class="card-header">
-            <h1 class="card-title">Editar Reserva</h1>
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h2 class="card-title">Editar Reserva</h2>
         </div>
         <div class="card-body">
             <form action="{{ url_for('edit_reserva', reserva_id=detalles.id) }}" method="post">
-                <div class="form-group">
-                    <label for="fecha_fin">Nueva Fecha de Finalización:</label>
-                        <input type="date" id="fecha_fin" name="fecha_fin" class="form-control"
-                               {% if detalles.fecha_fin is string %}
-                                   value="{{ detalles.fecha_fin }}"
-                               {% else %}
-                                   value="{{ detalles.fecha_fin.strftime('%Y-%m-%d') }}"
-                               {% endif %}>
-
-
+                <div class="mb-3">
+                    <label for="fecha_fin" class="form-label">Nueva Fecha de Finalización:</label>
+                    <input type="date" id="fecha_fin" name="fecha_fin" class="form-control"
+                           {% if detalles.fecha_fin is string %}
+                               value="{{ detalles.fecha_fin }}"
+                           {% else %}
+                               value="{{ detalles.fecha_fin.strftime('%Y-%m-%d') }}"
+                           {% endif %} required>
                 </div>
                 <button type="submit" class="btn btn-primary">Actualizar Reserva</button>
             </form>
@@ -31,12 +29,8 @@
 </div>
 
 <style>
-    .container {
-        padding-top: 20px;
-    }
     .card-header {
         background-color: #007bff;
-        color: white;
     }
     .btn-primary {
         background-color: #0056b3;

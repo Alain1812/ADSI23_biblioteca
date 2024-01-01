@@ -14,10 +14,14 @@
                 <h5 class="card-title mb-0">Información de la Reserva</h5>
             </div>
             <div class="card-body">
+                {% if detalles.portada_libro %}
+                    <img src="{{ detalles.portada_libro }}" class="img-fluid mb-3" alt="Portada del libro">
+                {% endif %}
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item"><strong>ID de Reserva:</strong> {{ detalles.id }}</li>
                     <li class="list-group-item"><strong>Título del Libro:</strong> {{ detalles.titulo_libro }}</li>
                     <li class="list-group-item"><strong>Autor:</strong> {{ detalles.nombre_autor }}</li>
+                    <li class="list-group-item"><strong>Descripción:</strong> {{ detalles.descripcion_libro }}</li>
                     <li class="list-group-item"><strong>Estado:</strong> {{ detalles.estado }}</li>
                     <li class="list-group-item"><strong>Fecha de Reserva:</strong> {{ detalles.fecha_reserva }}</li>
                     <li class="list-group-item"><strong>Fecha de Finalización:</strong> {{ detalles.fecha_fin }}</li>

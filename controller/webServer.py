@@ -297,10 +297,23 @@ def reserva_details(reserva_id):
     detalles_reserva = library.get_reserva_details(reserva_id)
 
     if detalles_reserva:
-        return render_template('reserva_details.html', detalles=detalles_reserva)
+        # Obtener la información completa del libro para la reserva
+        libro_info = library.get_book_info(detalles_reserva['bookID'])
+        if libro_info:
+            # Añadir información detallada del libro a los detalles de la reserva
+            detalles_reserva['titulo_libro'] = libro_info.title
+            detalles_reserva['nombre_autor'] = libro_info.author.name  # Accediendo al nombre del autor
+            detalles_reserva['descripcion_libro'] = libro_info.description
+            detalles_reserva['portada_libro'] = libro_info.cover
+
+            return render_template('reserva_details.html', detalles=detalles_reserva)
+        else:
+            error_message = "Error al cargar información del libro."
+            return render_template('mis_reservas.html', error_message=error_message)
     else:
         error_message = 'No se encontraron detalles para la reserva solicitada.'
         return render_template('mis_reservas.html', error_message=error_message)
+
 
 
 from datetime import datetime, timedelta
