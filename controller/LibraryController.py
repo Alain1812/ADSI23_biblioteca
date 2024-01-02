@@ -364,7 +364,10 @@ class LibraryController:
 
     def get_reviews_by_book_id_and_user(self,user_email,book_id):
          res=db.select("SELECT * FROM Resena WHERE email_user=? AND libro_id=?", (user_email, book_id))
-         return Resena(res[0][0], res[0][1], res[0][2], res[0][3])
+         final=None
+         if res:
+             final=Resena(res[0][0], res[0][1], res[0][2], res[0][3])
+         return final
 
 
 
