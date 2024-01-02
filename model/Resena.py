@@ -20,3 +20,4 @@ class Resena:
         @libro.setter
         def libro(self, valor):
             self._libro = valor
+
