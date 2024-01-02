@@ -143,8 +143,8 @@ class LibraryController:
         else:
             return None
 
-
-    def get_user_recommendations(self, user, number_of_books=5):
+##  RECOMENDACIONES DE USUARIO
+    def get_user_recommendations(self, user, number_of_books=100):
         """
         Método para obtener recomendaciones de libros para un usuario específico.
         :param user: El usuario para el cual se generarán las recomendaciones.
@@ -153,70 +153,89 @@ class LibraryController:
         """
         # Buscar en el historial de reservas del usuario
         print("Procesando Reservas:")
-        user_reservations = db.select("SELECT * FROM Reserva WHERE ID_Usuario = ?", (user.id,))
+        user_reservations = db.select("SELECT * FROM Reserva WHERE emailUser = ?", (user.email,))
         print("Reservas de usuario:", user_reservations)
 
         if user_reservations:
             print("Buscando recomendaciones de libros")
-            recommended_books = self.recommend_based_on_history(user_reservations, 6)
+            recommended_books = self.recommend_based_on_history(user_reservations, number_of_books, user.email)
         else:
             print("Sin reservas, recomendando varios libros al azar")
-            recommended_books = self.select_random_books(5)
+            recommended_books = self.select_random_books(number_of_books)
+
+        # Si la cantidad de libros recomendados es menor que el número deseado, añade más libros al azar
+        if len(recommended_books) < number_of_books:
+            additional_books_needed = number_of_books - len(recommended_books)
+            additional_books = self.select_random_books(additional_books_needed)
+            recommended_books.extend(additional_books)
+
         return recommended_books
 
-    def recommend_based_on_history(self, reservations, number_of_books):
+    def recommend_based_on_history(self, reservations, number_of_books, user_email):
+        print("buscando...")
 
-        # Usar el método get_related_users para obtener usuarios relacionados
+        related_users = self.get_related_users(reservations, 20, user_email)
+        print("Usuarios relacionados 2:", related_users)
 
-        related_users = self.get_related_users(reservations, 10)
-        print("Usuarios relacionados:", related_users)
         if not related_users:
-            related_books= self.select_random_books(number_of_books)
+            related_books = self.select_random_books(number_of_books)
         else:
-            related_books = self.get_related_books(related_users, number_of_books)
-            if not related_books:
+            book_ids = self.get_related_books(related_users, number_of_books, user_email)
+            if not book_ids:
                 related_books = self.select_random_books(number_of_books)
-        """books = [
-            Book(b[0], b[1], b[2], b[3], b[4])
-            for b in related_books
-        ]"""
+            else:
+                # Convertir la lista de IDs de libros en una lista de objetos Book
+                related_books = []
+                for book_id in book_ids:
+                    book_data = db.select("SELECT * FROM Book WHERE id = ?", (book_id,))
+                    if book_data:
+                        b = book_data[0]
+                        book = Book(b[0], b[1], b[2], b[3], b[4])
+                        related_books.append(book)
+
         return related_books
 
-    def get_related_users(self, reservations, number_of_users):
+    def get_related_users(self, reservations, number_of_users, requesting_user_email):
         user_count_map = {}
-
+        print("Sacando usuarios con gustos parecidos...")
         for reservation in reservations:
-            book_id = reservation['ID_Libro']
+            book_id = reservation[2]
             users_who_reserved = self.get_users_who_reserved_book(book_id)
-
+            print("Usuarios que han leido:", book_id)
+            print("hola xd", users_who_reserved)
             for user_id in users_who_reserved:
-                if user_id in user_count_map:
-                    user_count_map[user_id] += 1
-                else:
-                    user_count_map[user_id] = 1
+                # Verificar si el usuario actual no es el usuario solicitante
+                if user_id != requesting_user_email:
+                    if user_id in user_count_map:
+                        user_count_map[user_id] += 1
+                    else:
+                        user_count_map[user_id] = 1
 
         # Ordenar el hashmap por el contador
         related_users = sorted(user_count_map, key=user_count_map.get, reverse=True)
+        print("Usuarios relacionados: ", related_users)
 
         # Tomar los primeros n usuarios o todos los disponibles si son menos que n
         return related_users[:min(len(related_users), number_of_users)]
 
     def get_users_who_reserved_book(self, book_id):
         # Consulta para obtener todos los usuarios que han reservado un libro específico
-        users_data = db.select("SELECT ID_Usuario FROM Reserva WHERE ID_Libro = ?", (book_id,))
+        users_data = db.select("SELECT emailUser FROM Reserva WHERE bookID = ?", (book_id,))
         return [user[0] for user in users_data]
 
-    def get_related_books(self, related_users, number_of_books):
+    def get_related_books(self, related_users, number_of_books, requesting_user_email):
         book_count_map = {}
 
-        for user_id in related_users:
-            books_reserved_by_user = self.get_books_reserved_by_user(user_id)
+        for emailUser in related_users:
+            books_reserved_by_user = self.get_books_reserved_by_user(emailUser)
 
             for book_id in books_reserved_by_user:
-                if book_id in book_count_map:
-                    book_count_map[book_id] += 1
-                else:
-                    book_count_map[book_id] = 1
+                # Verificar si el usuario solicitante no ha reservado el libro
+                if not self.has_user_reserved_book(requesting_user_email, book_id):
+                    if book_id in book_count_map:
+                        book_count_map[book_id] += 1
+                    else:
+                        book_count_map[book_id] = 1
 
         # Ordenar el hashmap por el contador
         related_books = sorted(book_count_map, key=book_count_map.get, reverse=True)
@@ -224,9 +243,15 @@ class LibraryController:
         # Tomar los primeros n libros o todos los disponibles si son menos que n
         return related_books[:min(len(related_books), number_of_books)]
 
-    def get_books_reserved_by_user(self, user_id):
+    def has_user_reserved_book(self, user_email, book_id):
+        # Consulta para verificar si el usuario ha reservado el libro
+        reservation_data = db.select("SELECT COUNT(*) FROM Reserva WHERE emailUser = ? AND bookID = ?",
+                                     (user_email, book_id))
+        return reservation_data[0][0] > 0
+
+    def get_books_reserved_by_user(self, emailU):
         # Consulta para obtener todos los libros que un usuario ha reservado
-        books_data = db.select("SELECT ID_Libro FROM Reserva WHERE ID_Usuario = ?", (user_id,))
+        books_data = db.select("SELECT bookID FROM Reserva WHERE emailUser = ?", (emailU,))
         return [book[0] for book in books_data]
 
     def select_random_books(self, number_of_books):
