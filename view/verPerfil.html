@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<html lang="en">
+<head>
+    <title>Perfil de Usuario</title>
+</head>
+    <body>
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Perfil</h2>
+
+                <!-- Nombre Section -->
+                <div class="mb-4">
+                    <h4>Nombre:</h4>
+                    <h5>{{ nombre }}</h5>
+                </div>
+                <hr>
+                   <!-- Email Section -->
+                <div class="mb-4">
+                    <h4>Email:</h4>
+                    <h5>{{ email }}</h5>
+                </div>
+                <hr>
+                <!-- Amigos Section -->
+                <div class="mb-4">
+                    <h4>Amigos:</h4>
+                    {% if amigos %}
+                        <ul>
+                            {% for amigo in amigos %}
+                                <li>
+                                    {{ amigo }}
+                                    <form method="POST">
+                                        <input type="hidden" value="{{ amigo }}" name="email_amigo">
+                                        <button type="submit" class="btn btn-primary btn-block" id="verPerfil" name="verPerfil">Ver Perfil</button></a>
+                                    </form>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No tiene amigos.</p>
+                    {% endif %}
+                </div>
+                <hr>
+                <!-- Reservas Section -->
+                <div>
+                    <h4>Reservas:</h4>
+                    {% if reservas %}
+                        <div class="list-group">
+                            {% for reserva in reservas %}
+                                <div class="list-group-item list-group-item-action flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">{{ reserva.titulo_libro }}</h5>
+                                        <small>{{ reserva.fecha_reserva }}</small>
+                                    </div>
+                                    <p class="mb-1">Autor: {{ reserva.nombre_autor }}</p>
+                                    <small>Estado: {{ reserva.estado }} - Fecha de Finalización: {{ reserva.fecha_fin }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>No tiene reservas.</p>
+                    {% endif %}
+                </div>
+
+                <hr>
+                 <!-- Reseñas Section -->
+                <div>
+                    <h4>Reseñas:</h4>
+                    {% if resenas %}
+                        <div class="list-group">
+                            {% for resena in resenas %}
+                                <div class="list-group-item list-group-item-action flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">{{ resena.titulo_libro }}</h5>
+                                        <small>{{ resena.fecha_resena }}</small>
+                                    </div>
+                                    <p class="mb-1">Autor: {{ resena.nombre_autor }}</p>
+                                    <p class="mb-1">Puntuación: {{ resena.puntuacion }}</p>
+                                    <p class="mb-1">Mensaje: {{ resena.mensaje }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>No tiene reseñas.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    </body>
+</html>
+{% endblock %}
