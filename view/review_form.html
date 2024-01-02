@@ -1,16 +1,16 @@
 
-{% if existing_review %}
+{% if review %}
     <p>Ya has escrito una reseña para este libro. Si escribes una nueva, se sobrescribirá la anterior. Si dejas el formulario en blanco, se borrará tu reseña previa.</p>
 {% endif %}
 
 <form action="/review/rate/{{ book_id }}" method="post">
     <div class="form-group">
         <label for="rating">Escribe la puntuación, por ejemplo 10.0:</label>
-        <input type="text" name="rating" id="rating" class="form-control" placeholder="10.0" value="{{ existing_review.puntuacion if existing_review else '' }}">
+        <input type="text" name="rating" id="rating" class="form-control" placeholder="0.0-10.0" value="{{ review.puntuacion if review else '' }}">
     </div>
     <div class="form-group">
         <label for="review">Comentario:</label>
-        <textarea name="review" id="review" class="form-control">{{ existing_review.resena if existing_review else '' }}</textarea>
+        <textarea name="review" id="review" class="form-control">{{ review.resena if review else '' }}</textarea>
     </div>
     <button type="submit" class="btn btn-primary">Enviar</button>
 </form>
