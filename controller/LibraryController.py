@@ -73,7 +73,7 @@ class LibraryController:
         nombres = []
 
         # Convertir cada resultado en un objeto 'Review' y agregarlo a la lista
-        for rev in reviews_data:
+        for rev in reviews:
             # Asumiendo que la clase 'Review' se inicializa como Review(id, book_id, user_id, rating, comment)
             reviews.append(Resena(rev[0], rev[1], rev[2], rev[3]))
             nombres.append(self.get_name_by_user(rev[0]))
