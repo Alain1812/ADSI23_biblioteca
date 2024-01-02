@@ -374,5 +374,5 @@ def rate_book(book_id):
 
     # Para solicitudes GET, mostrar el formulario de reseña
     # Asegúrate de obtener cualquier dato necesario para mostrar en el formulario, como la reseña existente
-    existing_review = library.get_reviews_by_book_id_and_user(request.user.email, book_id)  # Obtén la reseña existente si existe
+    existing_review = library.get_reviews_by_book_id_and_user( request.user.email , book_id)  # Obtén la reseña existente si existe
     return render_template('review_form.html', book_id=book_id, review=existing_review)
