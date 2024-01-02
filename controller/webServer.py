@@ -274,7 +274,7 @@ def mis_reservas():
             if libro_info:
                 reserva_modificada = {
                     'id': reserva['id'],
-		    'bookID': libro_info.id,
+		            'bookID': libro_info.id,
                     'titulo_libro': libro_info.title,  # Asegúrate de que estos campos existen en tu clase Book
                     'nombre_autor': libro_info.author,
                     'estado': reserva['estado'],
@@ -377,3 +377,94 @@ def rate_book(book_id):
     # Asegúrate de obtener cualquier dato necesario para mostrar en el formulario, como la reseña existente
     existing_review = library.get_reviews_by_book_id_and_user( request.user.email , book_id)  # Obtén la reseña existente si existe
     return render_template('review_form.html', book_id=book_id, review=existing_review)
+
+
+###RED DE AMIGOS####
+
+@app.route('/solicitudes',  methods=['GET', 'POST'])
+def mostrar_solicitudes():
+    user_email = request.user.email
+
+    if not user_email:
+        # Redirigir al usuario no autenticado a la página de inicio de sesión
+        return redirect('/login')
+    solicitudes = library.get_user_requests(user_email)
+    if request.method == 'POST':
+        email_solicitud = request.form['email_solicitud']
+        if 'verPerfil' in request.form:
+            return redirect(url_for('ver_perfil', user_email=request.form.get('email_solicitud')))
+        if 'aceptarSol' in request.form:
+            library.aceptar_solicitud(user_email,email_solicitud)
+        elif 'rechazarSol' in request.form:
+            library.rechazar_solicitud(user_email,email_solicitud)
+    return render_template('solicitudes.html', solicitudes=solicitudes)
+
+@app.route('/verUsuarios',  methods=['GET', 'POST'])
+def mostrar_usuarios():
+    emailSolicita = request.user.email
+    usuarios = library.get_usuarios(emailSolicita)
+    if request.method == 'POST':
+        emailSolicitado = request.form.get('emailSolicitado')
+        if not emailSolicitado == emailSolicita:
+            library.enviar_solicitud(emailSolicita,emailSolicitado)
+        if 'verPerfil' in request.form:
+            return redirect(url_for('ver_perfil', user_email=request.form.get('emailSolicitado')))
+
+    return render_template('verUsuarios.html', usuarios=usuarios)
+
+
+@app.route('/amigos',  methods=['GET', 'POST'])
+def mostrar_amigos():
+    emailUser = request.user.email
+    amigos = library.get_amigos(emailUser)
+    if request.method == 'POST':
+        if 'eliminar_amigo' in request.form:
+            library.eliminar_amigo(emailUser,request.form.get('email_amigo'))
+        if 'verPerfil' in request.form:
+            return redirect(url_for('ver_perfil', user_email=request.form.get('email_amigo')))
+    return render_template('amigos.html', amigos=amigos)
+
+@app.route('/verPerfil', methods=['GET', 'POST'])
+def ver_perfil():
+    if request.args.get('header') == "1":
+        emailUser = request.user.email
+    else:
+        emailUser = request.args.get('user_email')
+    nombre = library.obtener_nombre(emailUser)
+    amigos = library.get_amigos(emailUser)
+    reservas_raw = library.get_user_reservas(emailUser)
+    reservas = []
+    resenas_raw = library.get_user_reviews(emailUser)
+    resenas = []
+    if request.method == 'POST':
+        if 'verPerfil' in request.form:
+            return redirect(url_for('ver_perfil', user_email=request.form.get('email_amigo')))
+    for reserva in reservas_raw:
+        libro_info = library.get_book_info(reserva['bookID'])
+        if libro_info:
+            reserva_modificada = {
+                'id': reserva['id'],
+                'bookID': libro_info.id,
+                'titulo_libro': libro_info.title,  # Asegúrate de que estos campos existen en tu clase Book
+                'nombre_autor': libro_info.author,
+                'estado': reserva['estado'],
+                'fecha_reserva': reserva['fecha_reserva'],
+                'fecha_fin': reserva['fecha_fin']
+            }
+            reservas.append(reserva_modificada)
+        else:
+            error_message = "Error al cargar información de algunos libros."
+    for resena in resenas_raw:
+        libro_info = library.get_book_info(resena['libro_id'])
+        if libro_info:
+            resena_modificada = {
+                'libro_id': resena['libro_id'],
+                'bookID': libro_info.id,
+                'titulo_libro': libro_info.title,  # Asegúrate de que estos campos existen en tu clase Book
+                'nombre_autor': libro_info.author,
+                'mensaje': resena['mensaje'],
+                'puntuacion': resena['puntuacion'],
+            }
+            resenas.append(resena_modificada)
+
+    return render_template('verPerfil.html', nombre=nombre,email=emailUser, amigos=amigos, reservas=reservas, resenas=resenas)

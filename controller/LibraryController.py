@@ -370,4 +370,94 @@ class LibraryController:
          return final
 
 
+######RED DE AMIGOS#########
+    def get_user_requests(self, user_email):
+        # Conectar a la base de datos
+        solicitudes = db.select("SELECT * FROM Solicitud WHERE email_solicitado = ?", (user_email,))
+        listRequest = []
+        for solicitud in solicitudes:
+            listRequest.append(solicitud[0])
+        return listRequest
 
+
+    def get_usuarios(self, email_user):
+        usuarios = db.select("SELECT email FROM User", ())
+        amigos = self.get_amigos(email_user)
+        listUsers = [usuario[0] for usuario in usuarios if usuario[0] != email_user and usuario[0] not in amigos]
+        return listUsers
+
+
+    def enviar_solicitud(self, emailSolicita, emailSolicitado):
+        yaSolicitado = db.select("SELECT email_solicita from Solicitud WHERE email_solicitado= ?", (emailSolicitado,))
+        if not yaSolicitado:
+            db.insert("INSERT INTO Solicitud VALUES (?,?)", (emailSolicita, emailSolicitado))
+
+
+    def aceptar_solicitud(self, user_email, email_solicitud):
+        hayAmistad = db.select("SELECT * FROM Amistad WHERE email1 = ? and email2 = ?", (user_email, email_solicitud))
+        if not hayAmistad:
+            db.insert("INSERT INTO Amistad VALUES (?,?)", (user_email, email_solicitud))
+            db.delete("DELETE FROM Solicitud WHERE email_solicitado = ? and email_solicita = ?",
+                      (user_email, email_solicitud))
+            db.delete("DELETE FROM Solicitud WHERE email_solicita = ? and email_solicitado = ?",
+                      (user_email, email_solicitud))
+
+
+    def rechazar_solicitud(self, user_email, email_solicitud):
+        db.delete("DELETE FROM Solicitud WHERE email_solicitado = ? and email_solicita = ?", (user_email, email_solicitud))
+        db.delete("DELETE FROM Solicitud WHERE email_solicita = ? and email_solicitado = ?", (user_email, email_solicitud))
+
+
+    def get_amigos(self, user_email):
+        amigos = db.select("SELECT * FROM Amistad WHERE email1 = ? or email2 = ?", (user_email, user_email))
+        listAmigos = []
+        for amigo in amigos:
+            if amigo[0] == user_email:
+                listAmigos.append(amigo[1])
+            else:
+                listAmigos.append(amigo[0])
+        return listAmigos
+
+
+    def eliminar_amigo(self, user_email,email_amigo):
+        amigo = db.delete("DElETE FROM Amistad WHERE email1 = ? and email2 = ?", (user_email, email_amigo))
+        amigo = db.delete("DElETE FROM Amistad WHERE email1 = ? and email2 = ?", (email_amigo, user_email))
+
+    def obtener_nombre(self, user_email):
+            result = db.select("SELECT name FROM User WHERE email=?", (user_email,))
+            if result:
+                return result[0][0]  # Extrae el primer elemento de la primera tupla si hay resultados
+            else:
+                return None  # O algún valor predeterminado que desees devolver si no se encuentra el nombre
+
+    def get_user_reviews(self,user_email):
+         res=db.select("SELECT * FROM Resena WHERE email_user=?", (user_email,))
+         resenas = []
+         for resena in res:
+             resenas.append({
+                 'libro_id': resena[1],
+                 'mensaje': resena[2],
+                 'puntuacion': resena[3],
+             })
+         return resenas
+
+    def search_users(self, query="", limit=6, page=0):
+        count = db.select("""
+            SELECT count() 
+            FROM User
+            WHERE email LIKE ? 
+        """, (f"%{query}%",))[0][0]
+
+        res = db.select("""
+            SELECT * 
+            FROM User
+            WHERE email LIKE ? 
+            LIMIT ? OFFSET ?
+        """, (f"%{query}%", limit, limit * page))
+
+        users = [
+            User(u[0], u[1], u[2])  # Ajusta según la estructura de tu tabla User
+            for u in res
+        ]
+
+        return users, count
