@@ -71,10 +71,12 @@ class LibraryController:
         # Crear una lista para almacenar objetos 'Review'
         reviews = []
 
+
         # Convertir cada resultado en un objeto 'Review' y agregarlo a la lista
         for review in reviews_data:
             # Asumiendo que la clase 'Review' se inicializa como Review(id, book_id, user_id, rating, comment)
             reviews.append(Resena(review[0], review[1], review[2], review[3]))
+            #self.get_name_by_user(review[0])
 
         return reviews
 
@@ -319,5 +321,21 @@ class LibraryController:
         # Usar db.update para ejecutar la sentencia SQL de actualización
         db.update("UPDATE Reserva SET estado = 'Finalizada' WHERE fecha_reserva <= ? AND estado = 'Activa'",
                   (fecha_limite_str,))
+
+    def add_or_update_review(self, user_email, book_id, review_text, rating):
+        # Buscar si ya existe una reseña para este libro de este usuario
+        existing_review = db.select("SELECT * FROM Resena WHERE email_user=? AND libro_id=?", (user_email, book_id))
+
+        if existing_review:
+            # Actualizar la reseña existente
+            db.update("UPDATE Resena SET mensaje=?, puntuacion=? WHERE email_user=? AND libro_id=?",
+                       (review_text, rating, user_email, book_id))
+        else:
+            # Crear una nueva reseña
+            db.insert("INSERT INTO Resena (email_user, libro_id, mensaje, puntuacion) VALUES (?, ?, ?, ?)",
+                       (user_email, book_id, review_text, rating))
+
+    def get_name_by_user(self,user_email):
+        return db.select("SELECT name FROM User WHERE email=?", (user_email,))
 
 

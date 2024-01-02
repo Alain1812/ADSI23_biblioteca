@@ -358,3 +358,21 @@ def return_reserva(reserva_id):
     library.return_reserva(reserva_id)
     return redirect(url_for('mis_reservas'))
 
+@app.route('/review/rate/<int:book_id>', methods=['GET', 'POST'])
+def rate_book(book_id):
+    if request.method == 'POST':
+        # Recoger los datos del formulario
+        review_text = request.form['review']
+        rating = request.form['rating']
+        user_email = request.user.email  # Asegúrate de tener el email del usuario en la sesión
+
+        # Guardar o actualizar la reseña
+        library.add_or_update_review(user_email, book_id, review_text, rating)
+
+        # Redirigir a alguna parte después de guardar la reseña
+        return redirect(url_for('mis_reservas'))
+
+    # Para solicitudes GET, mostrar el formulario de reseña
+    # Asegúrate de obtener cualquier dato necesario para mostrar en el formulario, como la reseña existente
+    existing_review = None  # Obtén la reseña existente si existe
+    return render_template('review_form.html', book_id=book_id, review=existing_review)
