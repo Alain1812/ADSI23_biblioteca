@@ -167,15 +167,15 @@ def review_book(book_id):
     # Obtener información del libro
     book_details = library.get_book_info(book_id)
 
-    # Suponiendo que existe un método para obtener las reseñas por el ID del libro
-    reviews = library.get_reviews_by_book_id(book_id)
+    reviews, names = library.get_reviews_by_book_id(book_id)
 
     if book_details:
-        # Renderizar 'resenas.html' con la información del libro y sus reseñas
-        return render_template('resenas.html', book=book_details, reviews=reviews)
+        # Renderizar 'resenas.html' con la información del libro, sus reseñas y nombres
+        return render_template('resenas.html', book=book_details, reviews=reviews, names=names)
     else:
         # Manejar el caso en que el libro no se encuentre (p.ej., redirigir a una página de error)
         return redirect(url_for('book_not_found'))
+
 
 
 
@@ -374,5 +374,5 @@ def rate_book(book_id):
 
     # Para solicitudes GET, mostrar el formulario de reseña
     # Asegúrate de obtener cualquier dato necesario para mostrar en el formulario, como la reseña existente
-    existing_review = None  # Obtén la reseña existente si existe
+    existing_review = library.get_reviews_by_book_id_and_user(request.user.email, book_id)  # Obtén la reseña existente si existe
     return render_template('review_form.html', book_id=book_id, review=existing_review)
