@@ -105,7 +105,24 @@ cur.execute("""
 		FOREIGN KEY(emailUser) REFERENCES User(email)
     )
 """)
+####RED DE AMIGOS####
 
+cur.execute("""
+	CREATE TABLE Amistad(
+		email1 varchar(30),
+		email2 varchar(30),
+		PRIMARY KEY(email1, email2),
+		FOREIGN KEY(email1) REFERENCES User(email)
+	)
+""")
+cur.execute("""
+    CREATE TABLE Solicitud(
+		email_solicita varchar(30),
+		email_solicitado varchar(30),
+		PRIMARY KEY(email_solicita, email_solicitado),
+		FOREIGN KEY(email_solicita) REFERENCES User(email)
+    )
+""")
 
 ### Insert JSON
 
