@@ -64,21 +64,21 @@ class LibraryController:
         else:
             return None
 
-    def get_reviews_by_book_id(self, book_id):
+        def get_reviews_by_book_id(self, book_id):
         # Realizar una consulta a la base de datos para obtener las reseñas del libro
         reviews_data = db.select("SELECT * FROM Resena WHERE libro_id = ?", (book_id,))
 
         # Crear una lista para almacenar objetos 'Review'
         reviews = []
+        nombres=[]
 
 
         # Convertir cada resultado en un objeto 'Review' y agregarlo a la lista
-        for review in reviews_data:
+        for rev in reviews_data:
             # Asumiendo que la clase 'Review' se inicializa como Review(id, book_id, user_id, rating, comment)
-            reviews.append(Resena(review[0], review[1], review[2], review[3]))
-            #self.get_name_by_user(review[0])
-
-        return reviews
+            reviews.append(Resena(rev[0], rev[1], rev[2], rev[3]))
+            nombres.append(self.get_name_by_user(rev[0]))
+        return reviews, nombres
 
     def list_topics(self):
         res = db.select("SELECT * FROM ForumTopic")
@@ -362,5 +362,10 @@ class LibraryController:
 
     def get_name_by_user(self,user_email):
         return db.select("SELECT name FROM User WHERE email=?", (user_email,))
+
+    def get_reviews_by_book_id_and_user(self,user_email,book_id):
+         res=db.select("SELECT * FROM Resena WHERE email_user=? AND libro_id=?", (user_email, book_id))
+         return Resena(res[0][0], res[0][1], res[0][2], res[0][3])
+
 
 
