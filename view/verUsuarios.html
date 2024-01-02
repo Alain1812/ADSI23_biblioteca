@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<html lang="en">
+<head>
+    <title>Usuarios</title>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row">
+            {% for usuario in usuarios %}
+                <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                    <form class="card" method="POST">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ usuario }}
+                                <input type="hidden" value="{{ usuario }}" name="emailSolicitado">
+                            </h5>
+                            <div class="d-flex justify-content-between">
+                                <button type="submit" class="btn btn-primary" id="solicitud" name="solicitud">Enviar Solicitud</button>
+                                <button type="submit" class="btn btn-primary" id="verPerfil" name="verPerfil">Ver Perfil</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
+{% endblock %}
