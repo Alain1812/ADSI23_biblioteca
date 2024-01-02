@@ -274,6 +274,7 @@ def mis_reservas():
             if libro_info:
                 reserva_modificada = {
                     'id': reserva['id'],
+		    'bookID': libro_info.id,
                     'titulo_libro': libro_info.title,  # Asegúrate de que estos campos existen en tu clase Book
                     'nombre_autor': libro_info.author,
                     'estado': reserva['estado'],
