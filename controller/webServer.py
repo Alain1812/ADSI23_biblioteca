@@ -183,16 +183,13 @@ def review_book(book_id):
 #RESERVAS
 @app.route('/reserve/book/<int:book_id>')
 def reserve_book(book_id):
-    # Obtener la información del libro usando 'book_id'
     book_info = library.get_book_info(book_id)
     if book_info is None:
         return "Libro no encontrado", 404
 
-    # Verificar si hay un usuario autenticado y obtener su email
     if hasattr(request, 'user') and request.user:
         emailUser = request.user.email
     else:
-        # Si no hay usuario, redirigir al login
         return redirect(url_for('login'))
 
     return render_template('new_reserva.html', book=book_info, emailUser=emailUser)
@@ -216,16 +213,14 @@ def process_reservation():
         end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
         today = datetime.today().date()
 
-        # Comprobación para asegurarse de que la reserva no es para un día pasado
         if start_date < today:
             error_message = "No se puede reservar para una fecha pasada."
-            book_info = library.get_book_info(book_id)  # Obtener información del libro
+            book_info = library.get_book_info(book_id)
             return render_template('new_reserva.html', error_message=error_message, book=book_info)
 
-        # Comprobación para asegurarse de que la fecha de finalización no es anterior a la de inicio
         if end_date < start_date:
             error_message = "La fecha de finalización no puede ser anterior a la fecha de inicio."
-            book_info = library.get_book_info(book_id)  # Obtener información del libro
+            book_info = library.get_book_info(book_id)
             return render_template('new_reserva.html', error_message=error_message, book=book_info)
 
         # Comprobar las restricciones de reserva
@@ -239,21 +234,20 @@ def process_reservation():
             error_message = 'La fecha de finalización no puede exceder los dos meses desde la fecha de inicio.'
 
         if error_message:
-            book_info = library.get_book_info(book_id)  # Obtener información del libro
+            book_info = library.get_book_info(book_id)
             return render_template('new_reserva.html', error_message=error_message, book=book_info)
 
-        # Procesar la reserva
         success = library.create_reserva(emailUser, book_id, start_date, end_date)
         if success:
             return redirect(url_for('mis_reservas'))
         else:
             error_message = 'Hubo un problema al procesar tu reserva.'
-            book_info = library.get_book_info(book_id)  # Obtener información del libro
+            book_info = library.get_book_info(book_id)
             return render_template('new_reserva.html', error_message=error_message, book=book_info)
 
     except ValueError as e:
         error_message = f"Error al procesar las fechas: {e}"
-        book_info = library.get_book_info(book_id)  # Obtener información del libro
+        book_info = library.get_book_info(book_id)
         return render_template('new_reserva.html', error_message=error_message, book=book_info)
 
 
@@ -263,10 +257,8 @@ def mis_reservas():
     if 'user' in dir(request) and request.user and request.user.token:
         emailUser = request.user.email
 
-        # Actualizar reservas vencidas antes de mostrar las reservas del usuario
         library.actualizar_reservas_vencidas()
 
-        # Obtener reservas del usuario y enriquecerlas con información del libro
         reservas_raw = library.get_user_reservas(emailUser)
         reservas = []
         for reserva in reservas_raw:
@@ -275,7 +267,7 @@ def mis_reservas():
                 reserva_modificada = {
                     'id': reserva['id'],
 		            'bookID': libro_info.id,
-                    'titulo_libro': libro_info.title,  # Asegúrate de que estos campos existen en tu clase Book
+                    'titulo_libro': libro_info.title,
                     'nombre_autor': libro_info.author,
                     'estado': reserva['estado'],
                     'fecha_reserva': reserva['fecha_reserva'],
@@ -298,12 +290,10 @@ def reserva_details(reserva_id):
     detalles_reserva = library.get_reserva_details(reserva_id)
 
     if detalles_reserva:
-        # Obtener la información completa del libro para la reserva
         libro_info = library.get_book_info(detalles_reserva['bookID'])
         if libro_info:
-            # Añadir información detallada del libro a los detalles de la reserva
             detalles_reserva['titulo_libro'] = libro_info.title
-            detalles_reserva['nombre_autor'] = libro_info.author.name  # Accediendo al nombre del autor
+            detalles_reserva['nombre_autor'] = libro_info.author.name
             detalles_reserva['descripcion_libro'] = libro_info.description
             detalles_reserva['portada_libro'] = libro_info.cover
 
@@ -316,28 +306,23 @@ def reserva_details(reserva_id):
         return render_template('mis_reservas.html', error_message=error_message)
 
 
-
-from datetime import datetime, timedelta
-
 @app.route('/reserve/edit/<int:reserva_id>', methods=['GET', 'POST'])
 def edit_reserva(reserva_id):
     detalles_reserva = library.get_reserva_details(reserva_id)
     error_message = None
-    today = datetime.today().date()  # Fecha actual como objeto datetime.date
+    today = datetime.today().date()
 
     if request.method == 'POST':
         nueva_fecha_fin_str = request.form.get('fecha_fin')
         try:
-            nueva_fecha_fin = datetime.strptime(nueva_fecha_fin_str, '%Y-%m-%d').date()  # Convierte a datetime.date
+            nueva_fecha_fin = datetime.strptime(nueva_fecha_fin_str, '%Y-%m-%d').date()
             fecha_reserva_str = detalles_reserva['fecha_reserva']
-            fecha_reserva = datetime.strptime(fecha_reserva_str.split(' ')[0], '%Y-%m-%d').date()  # Convierte a datetime.date
+            fecha_reserva = datetime.strptime(fecha_reserva_str.split(' ')[0], '%Y-%m-%d').date()
 
-            # Verificar que la nueva fecha no sea anterior a hoy
             if nueva_fecha_fin < today:
                 error_message = "La nueva fecha de finalización no puede ser una fecha pasada."
                 return render_template('edit_reserva.html', detalles=detalles_reserva, error_message=error_message, reserva_id=reserva_id)
 
-            # Verificar que la nueva fecha no exceda los 60 días desde la fecha de reserva
             if nueva_fecha_fin - fecha_reserva > timedelta(days=60):
                 error_message = 'La fecha de finalización no puede exceder los 60 días desde la fecha de inicio.'
                 return render_template('edit_reserva.html', detalles=detalles_reserva, error_message=error_message, reserva_id=reserva_id)
@@ -352,25 +337,26 @@ def edit_reserva(reserva_id):
     return render_template('edit_reserva.html', detalles=detalles_reserva, error_message=error_message, reserva_id=reserva_id)
 
 
-
-
 @app.route('/reserve/return/<int:reserva_id>')
 def return_reserva(reserva_id):
     library.return_reserva(reserva_id)
     return redirect(url_for('mis_reservas'))
 
+
+
+
+
+
+
 @app.route('/review/rate/<int:book_id>', methods=['GET', 'POST'])
 def rate_book(book_id):
     if request.method == 'POST':
-        # Recoger los datos del formulario
         review_text = request.form['review']
         rating = request.form['rating']
-        user_email = request.user.email  # Asegúrate de tener el email del usuario en la sesión
+        user_email = request.user.email
 
-        # Guardar o actualizar la reseña
         library.add_or_update_review(user_email, book_id, review_text, rating)
 
-        # Redirigir a alguna parte después de guardar la reseña
         return redirect(url_for('mis_reservas'))
 
     # Para solicitudes GET, mostrar el formulario de reseña

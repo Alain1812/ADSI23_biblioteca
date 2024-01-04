@@ -20,8 +20,8 @@
                     <small>Estado: {{ reserva.estado }} - Fecha de Finalización: {{ reserva.fecha_fin }}</small>
                     <div class="mt-2">
                         <a href="/reserve/details/{{ reserva.id }}" class="btn btn-primary btn-sm">Detalles</a>
-                        <a href="/reserve/edit/{{ reserva.id }}" class="btn btn-secondary btn-sm">Editar</a>
                         {% if reserva.estado != 'Finalizada' %}
+                            <a href="/reserve/edit/{{ reserva.id }}" class="btn btn-secondary btn-sm">Editar</a>
                             <a href="/reserve/return/{{ reserva.id }}" class="btn btn-danger btn-sm">Devolver</a>
                         {% endif %}
                         {% if reserva.estado == 'Finalizada' %}

@@ -270,7 +270,6 @@ class LibraryController:
 
     def create_reserva(self, emailUser, book_id, start_date, end_date):
         try:
-            # Insertar la reserva en la base de datos
             db.insert("INSERT INTO Reserva (emailUser, bookID, estado, fecha_reserva, fecha_fin) VALUES (?, ?, ?, ?, ?)",
                       (emailUser, book_id, 'Activa', start_date, end_date))
             return 'Reserva realizada con éxito', True
@@ -310,7 +309,6 @@ class LibraryController:
 
 
     def update_reserva(self, reserva_id, nueva_fecha_fin):
-        # Actualiza la fecha de finalización en la base de datos
         db.update("UPDATE Reserva SET fecha_fin = ? WHERE id = ?", (nueva_fecha_fin, reserva_id))
 
 
@@ -342,9 +340,12 @@ class LibraryController:
         fecha_limite = datetime.now() - timedelta(days=60)
         fecha_limite_str = fecha_limite.strftime('%Y-%m-%d %H:%M:%S')
 
-        # Usar db.update para ejecutar la sentencia SQL de actualización
         db.update("UPDATE Reserva SET estado = 'Finalizada' WHERE fecha_reserva <= ? AND estado = 'Activa'",
                   (fecha_limite_str,))
+
+
+
+
 
     def add_or_update_review(self, user_email, book_id, review_text, rating):
         # Buscar si ya existe una reseña para este libro de este usuario
