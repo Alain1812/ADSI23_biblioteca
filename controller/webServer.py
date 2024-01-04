@@ -1,9 +1,8 @@
 from .LibraryController import LibraryController
 from flask import Flask, render_template, request, make_response, redirect , session, url_for
-from model import User
 from datetime import datetime, timedelta
 import sqlite3
-
+from model import User
 app = Flask(__name__, static_url_path='', static_folder='../view/static', template_folder='../view/')
 
 
@@ -167,11 +166,15 @@ def review_book(book_id):
     # Obtener información del libro
     book_details = library.get_book_info(book_id)
 
-    reviews, names = library.get_reviews_by_book_id(book_id)
+    reviews = library.get_reviews_by_book_id(book_id)
+    users=[]
+    for rev in reviews:
+        eh=rev.get_user()
+        users.append(User(eh[0][0], eh[0][1], eh[0][2], eh[0][4]))
 
     if book_details:
         # Renderizar 'resenas.html' con la información del libro, sus reseñas y nombres
-        return render_template('resenas.html', book=book_details, reviews=reviews, names=names)
+        return render_template('resenas.html', book=book_details, reviews=reviews, users=users)
     else:
         # Manejar el caso en que el libro no se encuentre (p.ej., redirigir a una página de error)
         return redirect(url_for('book_not_found'))
