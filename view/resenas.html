@@ -18,15 +18,15 @@
         </div>
     </div>
 
+
     <div id="reviews" class="mt-4">
     <h2>Reseñas</h2>
     {% for review in reviews %}
     <div class="review">
-        <p><strong>Usuario:</strong> {{ names[loop.index0][0]|replace("('", "")|replace("',)", "") }}</p>
+        <p><strong>Usuario:</strong> {{ users[loop.index0].username }}</p>
         <p><strong>Calificación:</strong> {{ review.puntuacion }}</p>
         <p><strong>Comentario:</strong> {{ review.resena }}</p>
 ---------------------
-        <!-- Puedes agregar más detalles de cada reseña aquí -->
     </div>
     {% else %}
     <p>No hay reseñas para este libro.</p>
