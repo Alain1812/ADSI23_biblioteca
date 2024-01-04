@@ -126,8 +126,8 @@ class LibraryController:
             return None
 
     def agregar_libro(self, titulo, author, cover, description):
-        unLibro = self.get_libro(titulo)
-        if unLibro:
+        un_libro = db.select("SELECT * FROM Book WHERE title = ?", (titulo,))
+        if len(un_libro) > 0:
             return "Libro ya existe"
         db.insert("INSERT INTO Book (title, author, cover, description) VALUES (?, ?, ?, ?)",
                   (titulo, author, cover, description))
