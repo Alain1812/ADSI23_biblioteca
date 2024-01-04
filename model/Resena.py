@@ -3,6 +3,7 @@ from .Book import Book
 
 db = Connection()
 
+
 class Resena:
     def __init__(self, email_user, libro_id, resena, puntuacion):
         self.email_user = email_user
@@ -21,3 +22,5 @@ class Resena:
         def libro(self, valor):
             self._libro = valor
 
+    def get_user(self):
+        return db.select("SELECT * from User WHERE email=?", (self.email_user,))
