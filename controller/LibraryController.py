@@ -133,13 +133,6 @@ class LibraryController:
                   (titulo, author, cover, description))
         return "Libro agregado con éxito"
 
-    def get_admin(self, email, password):
-        admin = db.select("SELECT * from Admin WHERE email = ? AND password = ?", (email, hash_password(password)))
-        if len(admin) > 0:
-            return Admin(admin[0][0], admin[0][1], admin[0][2])
-        else:
-            return None
-
 ##  RECOMENDACIONES DE USUARIO
     def get_user_recommendations(self, user, number_of_books=100):
         """
