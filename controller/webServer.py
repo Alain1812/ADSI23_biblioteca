@@ -108,7 +108,7 @@ def forums():
 
 @app.route('/forums/<int:topic_id>')
 def forum_topic(topic_id):
-	topic, replies = library.show_topic(topic_id)  # Asegurarse de capturar ambos valores
+	topic, replies = library.show_topic(topic_id)
 	return render_template('topic.html', topic=topic, replies=replies)
 
 @app.route('/forums/new', methods=['GET', 'POST'])
@@ -117,7 +117,7 @@ def new_forum_topic():
         title = request.form['title']
         if not hasattr(request, 'user') or not request.user:
             return redirect(url_for('login'))
-        emailUser = request.user.email  # Obtener el correo electrónico desde el objeto user
+        emailUser = request.user.email
         library.create_topic(title, emailUser)
         return redirect('/forums')
     return render_template('new_topic.html')
@@ -127,7 +127,7 @@ def post_reply(topic_id):
     content = request.form['content']
     if not hasattr(request, 'user') or not request.user:
         return redirect(url_for('login'))
-    emailUser = request.user.email  # Obtener el correo electrónico desde el objeto user
+    emailUser = request.user.email
     library.post_reply(topic_id, emailUser, content)
     return redirect(url_for('forum_topic', topic_id=topic_id))
 

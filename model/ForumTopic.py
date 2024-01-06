@@ -12,7 +12,7 @@ class ForumTopic:
     def create_new_topic(title):
         conn = sqlite3.connect('datos.db')
         cur = conn.cursor()
-        # Corregir la sentencia SQL para usar placeholders (?)
+
         cur.execute("INSERT INTO ForumTopic (title) VALUES (?)", (title,))
         conn.commit()
         conn.close()
