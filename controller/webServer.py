@@ -177,7 +177,7 @@ def review_book(book_id):
         return render_template('resenas.html', book=book_details, reviews=reviews, users=users)
     else:
         # Manejar el caso en que el libro no se encuentre (p.ej., redirigir a una página de error)
-        return redirect(url_for('book_not_found'))
+        return redirect(url_for('catalogue'))
 
 
 
