@@ -63,7 +63,7 @@ class LibraryController:
             return Book(res[0][0], res[0][1], res[0][2], res[0][3], res[0][4])
         else:
             return None
-
+		
     def get_reviews_by_book_id(self, book_id):
         # Realizar una consulta a la base de datos para obtener las reseñas del libro
         review_data = db.select("SELECT * FROM Resena WHERE libro_id = ?", (book_id,))
@@ -350,9 +350,6 @@ class LibraryController:
             # Crear una nueva reseña
             db.insert("INSERT INTO Resena (email_user, libro_id, mensaje, puntuacion) VALUES (?, ?, ?, ?)",
                        (user_email, book_id, review_text, rating))
-
-    def get_name_by_user(self,user_email):
-        return db.select("SELECT name FROM User WHERE email=?", (user_email,))
 
     def get_reviews_by_book_id_and_user(self,user_email,book_id):
          res=db.select("SELECT * FROM Resena WHERE email_user=? AND libro_id=?", (user_email, book_id))
