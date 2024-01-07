@@ -1,0 +1,76 @@
+import os
+import sqlite3
+from . import BaseTestClass
+from bs4 import BeautifulSoup
+
+
+#Connection
+salt = "library"
+script_dir = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(script_dir, '..', 'datos.db')
+conexion = sqlite3.connect(db_path)
+cursor = conexion.cursor()
+class test_resenas (BaseTestClass):
+
+    def test_resenassinlogear(self):
+        # Sin logear
+        res = self.client.get('/review/book/1')
+        # lo encuentra
+        self.assertEqual(200, res.status_code)
+
+    def test_resenaslogeado(self):
+        #me logeo
+        self.login('ejemplo@gmail.com', '123456')
+        res = self.client.get('/review/book/1')
+        # lo encuentra
+        self.assertEqual(200, res.status_code)
+
+    def test_puntuarsinlogear(self):
+        #sin logear
+        res = self.client.get('/review/rate/1')
+        #redirige a login
+        self.assertEqual(302, res.status_code)
+
+    def test_puntuarlogeado(self):
+        self.login('ejemplo@gmail.com', '123456')
+        res = self.client.get('/review/rate/1')
+        self.assertEqual(200, res.status_code)
+
+
+    def test_noresenas(self):
+        cursor.execute(f"""DELETE FROM Resena WHERE libro_id = '1' """)
+        conexion.commit()
+        res = self.client.get('/review/book/1')
+        page = BeautifulSoup(res.data, features="html.parser")
+        #no aparece ninguna reseña
+        self.assertEqual(0, len(page.find('div', id='reviews').find_all('div', class_='review')))
+
+    def test_anadirresena(self):
+        self.login('jhon@gmail.com', '123')
+        #aseguramos que no hay ninguna reseña
+        cursor.execute(f"""DELETE FROM Resena WHERE libro_id = '1' """)
+        conexion.commit()
+        cursor.execute(f"""INSERT INTO Resena (email_user, libro_id, mensaje, puntuacion) VALUES ('jhon@gmail.com', 1, 'Me encantó este libro, los personajes y la trama eran increíbles. ¡Muy recomendado!', 4.5)""")
+        conexion.commit()
+        res = self.client.get('/review/book/1')
+        page = BeautifulSoup(res.data, features="html.parser")
+        self.assertEqual(1, len(page.find('div', id='reviews').find_all('div', class_='review')))
+
+
+    def test_borrarresena(self):
+        self.login('jhon@gmail.com', '123')
+        #aseguramos que no hay ninguna reseña
+        cursor.execute(f"""DELETE FROM Resena WHERE libro_id = '1'""")
+        conexion.commit()
+        cursor.execute(f"""INSERT INTO Resena (email_user, libro_id, mensaje, puntuacion) VALUES ('jhon@gmail.com', 1, 'Me encantó este libro, los personajes y la trama eran increíbles. ¡Muy recomendado!', 9.5)""")
+        conexion.commit()
+        cursor.execute(f"""INSERT INTO Resena (email_user, libro_id, mensaje, puntuacion) VALUES ('ejemplo@gmail.com', 1, 'Malo', 2.5)""")
+        conexion.commit()
+        res = self.client.get('/review/book/1')
+        page = BeautifulSoup(res.data, features="html.parser")
+        self.assertEqual(2, len(page.find('div', id='reviews').find_all('div', class_='review')))
+        cursor.execute(f"""DELETE FROM Resena WHERE email_user='jhon@gmail.com' AND libro_id = '1'  """)
+        conexion.commit()
+        res = self.client.get('/review/book/1')
+        page = BeautifulSoup(res.data, features="html.parser")
+        self.assertEqual(1, len(page.find('div', id='reviews').find_all('div', class_='review')))
