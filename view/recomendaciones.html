@@ -17,6 +17,8 @@
                         {% if book.description: %}
                         <p class="card-text">{{book.description}}</p>
                         {% endif %}
+                        <a href='/review/book/{{book.id}}' class="btn btn-primary mt-2">
+                                <i class="fas fa-book"></i> Reseñas
                         {% if request.user %}
                             <a href='/reserve/book/{{book.id}}' class="btn btn-primary mt-2">
                                 <i class="fas fa-book"></i> Reservar
