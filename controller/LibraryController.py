@@ -134,7 +134,7 @@ class LibraryController:
         return "Libro agregado con éxito"
 
 ##  RECOMENDACIONES DE USUARIO
-    def get_user_recommendations(self, user, number_of_books=100):
+    def get_user_recommendations(self, userEmail, number_of_books=20):
         """
         Método para obtener recomendaciones de libros para un usuario específico.
         :param user: El usuario para el cual se generarán las recomendaciones.
@@ -143,12 +143,12 @@ class LibraryController:
         """
         # Buscar en el historial de reservas del usuario
         print("Procesando Reservas:")
-        user_reservations = db.select("SELECT * FROM Reserva WHERE emailUser = ?", (user.email,))
+        user_reservations = db.select("SELECT * FROM Reserva WHERE emailUser = ?", (userEmail,))
         print("Reservas de usuario:", user_reservations)
 
         if user_reservations:
             print("Buscando recomendaciones de libros")
-            recommended_books = self.recommend_based_on_history(user_reservations, number_of_books, user.email)
+            recommended_books = self.recommend_based_on_history(user_reservations, number_of_books, userEmail)
         else:
             print("Sin reservas, recomendando varios libros al azar")
             recommended_books = self.select_random_books(number_of_books)
@@ -161,11 +161,12 @@ class LibraryController:
 
         return recommended_books
 
+
     def recommend_based_on_history(self, reservations, number_of_books, user_email):
         print("buscando...")
 
         related_users = self.get_related_users(reservations, 20, user_email)
-        print("Usuarios relacionados 2:", related_users)
+
 
         if not related_users:
             related_books = self.select_random_books(number_of_books)
@@ -192,7 +193,7 @@ class LibraryController:
             book_id = reservation[2]
             users_who_reserved = self.get_users_who_reserved_book(book_id)
             print("Usuarios que han leido:", book_id)
-            print("hola xd", users_who_reserved)
+            print("Lista:", users_who_reserved)
             for user_id in users_who_reserved:
                 # Verificar si el usuario actual no es el usuario solicitante
                 if user_id != requesting_user_email:

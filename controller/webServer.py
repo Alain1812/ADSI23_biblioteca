@@ -53,7 +53,7 @@ def recommendations():
     number_of_books_per_page = 6  # O el número que prefieras
 
     # Obtener las recomendaciones para el usuario
-    recommended_books = library.get_user_recommendations(request.user)
+    recommended_books = library.get_user_recommendations(request.user.email)
     print("Libros recomendados:", recommended_books)
 
     # Calcular la paginación
