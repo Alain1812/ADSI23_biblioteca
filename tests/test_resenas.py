@@ -25,6 +25,12 @@ class test_resenas (BaseTestClass):
         # lo encuentra
         self.assertEqual(200, res.status_code)
 
+    def test_resenassinlibro(self):
+        #test de si no encuentra el libro
+        res = self.client.get('/review/book/999999')
+        #lo redirige
+        self.assertEqual(302, res.status_code)
+
     def test_puntuarsinlogear(self):
         #sin logear
         res = self.client.get('/review/rate/1')
