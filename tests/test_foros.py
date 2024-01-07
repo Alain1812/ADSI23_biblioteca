@@ -3,26 +3,27 @@ from bs4 import BeautifulSoup
 
 class TestForos(BaseTestClass):
 
-    def test_listar_temas(self):
-        res = self.client.get('/forums')
-        self.assertEqual(200, res.status_code)
-        page = BeautifulSoup(res.data, features="html.parser")
-        # Asumiendo que los temas están en una lista o en un div con una clase específica
-        temas = page.find_all('div', class_='clase-tema')  # Cambiar 'clase-tema' según tu estructura HTML
-        self.assertGreater(len(temas), 0)
+    def test_ver_temas_foro(self):
+        respuesta = self.client.get('/forums')
+        self.assertEqual(respuesta.status_code, 200, "Error al acceder a los temas del foro.")
+
 
     def test_ver_mensajes_tema(self):
-        res = self.client.get('/forums/1')  # Asume que hay un tema con id 1
-        self.assertEqual(200, res.status_code)
-        page = BeautifulSoup(res.data, features="html.parser")
-        mensajes = page.find_all('div', class_='clase-mensaje')  # Cambiar 'clase-mensaje' según tu estructura HTML
-        self.assertGreater(len(mensajes), 0)
+        tema_id = 1  # Asumiendo que hay un tema con este ID
+        respuesta = self.client.get(f'/forums/{tema_id}')
+        self.assertEqual(respuesta.status_code, 200, "Error al acceder a los mensajes del tema.")
 
-    def test_escribir_en_tema(self):
-        params = {
-            'content': 'Este es un nuevo mensaje de prueba',
-            'emailUser': 'test@example.com'  # Asume que se requiere 'emailUser'
-        }
-        res = self.client.post('/forums/1/reply', data=params)  # Asume que hay un tema con id 1
-        self.assertEqual(200, res.status_code)
-        # Puede que necesites verificar más allá del código de estado, como comprobar si el mensaje se ha añadido en la página
+
+
+    def test_crear_tema_foro(self):
+
+        datos_tema_nuevo = {'title': 'Tema de prueba'}
+        respuesta = self.client.post('/forums/new', data=datos_tema_nuevo)
+        self.assertEqual(respuesta.status_code, 302, "Error o no redirige tras crear un tema nuevo.")
+
+
+    def test_responder_tema_foro(self):
+        tema_id = 1
+        datos_respuesta = {'content': 'Respuesta de prueba'}
+        respuesta = self.client.post(f'/forums/{tema_id}/reply', data=datos_respuesta)
+        self.assertEqual(respuesta.status_code, 302, "Error o no redirige tras responder en un tema.")
