@@ -1,48 +1,49 @@
 from .LibraryController import LibraryController
-from flask import Flask, render_template, request, make_response, redirect , session, url_for
+from flask import Flask, render_template, request, make_response, redirect, session, url_for
 from datetime import datetime, timedelta
 import sqlite3
 from model import User
-app = Flask(__name__, static_url_path='', static_folder='../view/static', template_folder='../view/')
 
+app = Flask(__name__, static_url_path='', static_folder='../view/static', template_folder='../view/')
 
 library = LibraryController()
 
 
 @app.before_request
 def get_logged_user():
-	if '/css' not in request.path and '/js' not in request.path:
-		token = request.cookies.get('token')
-		time = request.cookies.get('time')
-		if token and time:
-			request.user = library.get_user_cookies(token, float(time))
-			if request.user:
-				request.user.token = token
+    if '/css' not in request.path and '/js' not in request.path:
+        token = request.cookies.get('token')
+        time = request.cookies.get('time')
+        if token and time:
+            request.user = library.get_user_cookies(token, float(time))
+            if request.user:
+                request.user.token = token
 
 
 @app.after_request
 def add_cookies(response):
-	if 'user' in dir(request) and request.user and request.user.token:
-		session = request.user.validate_session(request.user.token)
-		response.set_cookie('token', session.hash)
-		response.set_cookie('time', str(session.time))
-	return response
+    if 'user' in dir(request) and request.user and request.user.token:
+        session = request.user.validate_session(request.user.token)
+        response.set_cookie('token', session.hash)
+        response.set_cookie('time', str(session.time))
+    return response
 
 
 @app.route('/')
 def index():
-	return render_template('index.html')
+    return render_template('index.html')
 
 
 @app.route('/catalogue')
 def catalogue():
-	title = request.values.get("title", "")
-	author = request.values.get("author", "")
-	page = int(request.values.get("page", 1))
-	books, nb_books = library.search_books(title=title, author=author, page=page - 1)
-	total_pages = (nb_books // 6) + 1
-	return render_template('catalogue.html', books=books, title=title, author=author, current_page=page,
-	                       total_pages=total_pages, max=max, min=min)
+    title = request.values.get("title", "")
+    author = request.values.get("author", "")
+    page = int(request.values.get("page", 1))
+    books, nb_books = library.search_books(title=title, author=author, page=page - 1)
+    total_pages = (nb_books // 6) + 1
+    return render_template('catalogue.html', books=books, title=title, author=author, current_page=page,
+                           total_pages=total_pages, max=max, min=min)
+
 
 @app.route('/recomendaciones')
 def recommendations():
@@ -66,39 +67,39 @@ def recommendations():
     books_to_display = recommended_books[start:end]
 
     # Renderizar la plantilla con los libros recomendados para la página actual
-    return render_template('recomendaciones.html', books=books_to_display, current_page=page, total_pages=total_pages, max=max, min=min)
+    return render_template('recomendaciones.html', books=books_to_display, current_page=page, total_pages=total_pages,
+                           max=max, min=min)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-	if 'user' in dir(request) and request.user and request.user.token:
-		return redirect('/')
-	email = request.values.get("email", "")
-	password = request.values.get("password", "")
-	user = library.get_user(email, password)
-	if user:
-		session = user.new_session()
-		resp = redirect("/")
-		resp.set_cookie('token', session.hash)
-		resp.set_cookie('time', str(session.time))
-	else:
-		if request.method == 'POST':
-			return redirect('/login')
-		else:
-			resp = render_template('login.html')
-	return resp
+    if 'user' in dir(request) and request.user and request.user.token:
+        return redirect('/')
+    email = request.values.get("email", "")
+    password = request.values.get("password", "")
+    user = library.get_user(email, password)
+    if user:
+        session = user.new_session()
+        resp = redirect("/")
+        resp.set_cookie('token', session.hash)
+        resp.set_cookie('time', str(session.time))
+    else:
+        if request.method == 'POST':
+            return redirect('/login')
+        else:
+            resp = render_template('login.html')
+    return resp
 
 
 @app.route('/logout')
 def logout():
-	path = request.values.get("path", "/")
-	resp = redirect(path)
-	resp.delete_cookie('token')
-	resp.delete_cookie('time')
-	if 'user' in dir(request) and request.user and request.user.token:
-		request.user.delete_session(request.user.token)
-		request.user = None
-	return resp
+    resp = redirect(url_for('login'))  # Redirigir siempre a la página de inicio de sesión
+    resp.delete_cookie('token')
+    resp.delete_cookie('time')
+    if 'user' in dir(request) and request.user and request.user.token:
+        request.user.delete_session(request.user.token)
+        request.user = None
+    return resp
 
 
 @app.route('/forums')
@@ -106,10 +107,12 @@ def forums():
     topics = library.list_topics()
     return render_template('forum.html', topics=topics)
 
+
 @app.route('/forums/<int:topic_id>')
 def forum_topic(topic_id):
-	topic, replies = library.show_topic(topic_id)
-	return render_template('topic.html', topic=topic, replies=replies)
+    topic, replies = library.show_topic(topic_id)
+    return render_template('topic.html', topic=topic, replies=replies)
+
 
 @app.route('/forums/new', methods=['GET', 'POST'])
 def new_forum_topic():
@@ -121,6 +124,7 @@ def new_forum_topic():
         library.create_topic(title, emailUser)
         return redirect('/forums')
     return render_template('new_topic.html')
+
 
 @app.route('/forums/<int:topic_id>/reply', methods=['POST'])
 def post_reply(topic_id):
@@ -136,6 +140,7 @@ def post_reply(topic_id):
 def admin_page():
     return render_template('admin.html')  # Asumiendo que tu archivo HTML se llama 'admin.html'
 
+
 @app.route('/ruta_para_agregar_usuario', methods=['POST'])
 def agregar_usuario():
     username = request.form['username']
@@ -146,11 +151,13 @@ def agregar_usuario():
     resultado = library.agregar_usuario(username, email, password, admin_value)
     return render_template('resultado.html', mensaje=resultado)
 
+
 @app.route('/ruta_para_eliminar_usuario', methods=['POST'])
 def eliminar_usuario():
     emailEliminar = request.form['emailEliminar']
     resultado = library.eliminar_usuario(emailEliminar)
     return render_template('resultado.html', mensaje=resultado)
+
 
 @app.route('/ruta_para_agregar_libro', methods=['POST'])
 def agregar_libro():
@@ -160,16 +167,17 @@ def agregar_libro():
     description = request.form['description']
     resultado = library.agregar_libro(title, author, cover, description)
     return render_template('resultado.html', mensaje=resultado)
-	
+
+
 @app.route('/review/book/<int:book_id>', methods=['GET'])
 def review_book(book_id):
     # Obtener información del libro
     book_details = library.get_book_info(book_id)
 
     reviews = library.get_reviews_by_book_id(book_id)
-    users=[]
+    users = []
     for rev in reviews:
-        eh=rev.get_user()
+        eh = rev.get_user()
         users.append(User(eh[0][0], eh[0][1], eh[0][2], eh[0][4]))
 
     if book_details:
@@ -180,10 +188,7 @@ def review_book(book_id):
         return redirect(url_for('catalogue'))
 
 
-
-
-
-#RESERVAS
+# RESERVAS
 @app.route('/reserve/book/<int:book_id>')
 def reserve_book(book_id):
     book_info = library.get_book_info(book_id)
@@ -269,7 +274,7 @@ def mis_reservas():
             if libro_info:
                 reserva_modificada = {
                     'id': reserva['id'],
-		            'bookID': libro_info.id,
+                    'bookID': libro_info.id,
                     'titulo_libro': libro_info.title,
                     'nombre_autor': libro_info.author,
                     'estado': reserva['estado'],
@@ -284,7 +289,6 @@ def mis_reservas():
     else:
         error_message = 'No estás autenticado. Por favor, inicia sesión.'
         return render_template('login.html', error_message=error_message)
-
 
 
 @app.route('/reserve/details/<int:reserva_id>')
@@ -324,26 +328,31 @@ def edit_reserva(reserva_id):
 
             if nueva_fecha_fin < today:
                 error_message = "La nueva fecha de finalización no puede ser una fecha pasada."
-                return render_template('edit_reserva.html', detalles=detalles_reserva, error_message=error_message, reserva_id=reserva_id)
+                return render_template('edit_reserva.html', detalles=detalles_reserva, error_message=error_message,
+                                       reserva_id=reserva_id)
 
             if nueva_fecha_fin - fecha_reserva > timedelta(days=60):
                 error_message = 'La fecha de finalización no puede exceder los 60 días desde la fecha de inicio.'
-                return render_template('edit_reserva.html', detalles=detalles_reserva, error_message=error_message, reserva_id=reserva_id)
+                return render_template('edit_reserva.html', detalles=detalles_reserva, error_message=error_message,
+                                       reserva_id=reserva_id)
 
             library.update_reserva(reserva_id, nueva_fecha_fin_str)
             return redirect(url_for('mis_reservas'))
 
         except ValueError as e:
             error_message = f"Error al procesar la fecha: {e}"
-            return render_template('edit_reserva.html', detalles=detalles_reserva, error_message=error_message, reserva_id=reserva_id)
+            return render_template('edit_reserva.html', detalles=detalles_reserva, error_message=error_message,
+                                   reserva_id=reserva_id)
 
-    return render_template('edit_reserva.html', detalles=detalles_reserva, error_message=error_message, reserva_id=reserva_id)
+    return render_template('edit_reserva.html', detalles=detalles_reserva, error_message=error_message,
+                           reserva_id=reserva_id)
 
 
 @app.route('/reserve/return/<int:reserva_id>')
 def return_reserva(reserva_id):
     library.return_reserva(reserva_id)
     return redirect(url_for('mis_reservas'))
+
 
 @app.route('/review/rate/<int:book_id>', methods=['GET', 'POST'])
 def rate_book(book_id):
@@ -366,9 +375,10 @@ def rate_book(book_id):
         final = redirect(url_for('login'))
     return final
 
+
 ###RED DE AMIGOS####
 
-@app.route('/solicitudes',  methods=['GET', 'POST'])
+@app.route('/solicitudes', methods=['GET', 'POST'])
 def mostrar_solicitudes():
     user_email = request.user.email
 
@@ -381,12 +391,13 @@ def mostrar_solicitudes():
         if 'verPerfil' in request.form:
             return redirect(url_for('ver_perfil', user_email=request.form.get('email_solicitud')))
         if 'aceptarSol' in request.form:
-            library.aceptar_solicitud(user_email,email_solicitud)
+            library.aceptar_solicitud(user_email, email_solicitud)
         elif 'rechazarSol' in request.form:
-            library.rechazar_solicitud(user_email,email_solicitud)
+            library.rechazar_solicitud(user_email, email_solicitud)
     return render_template('solicitudes.html', solicitudes=solicitudes)
 
-@app.route('/verUsuarios',  methods=['GET', 'POST'])
+
+@app.route('/verUsuarios', methods=['GET', 'POST'])
 def mostrar_usuarios():
     emailSolicita = request.user.email
     usuarios = library.get_usuarios(emailSolicita)
@@ -395,20 +406,21 @@ def mostrar_usuarios():
         if 'verPerfil' in request.form:
             return redirect(url_for('ver_perfil', user_email=request.form.get('emailSolicitado')))
         if not emailSolicitado == emailSolicita:
-            library.enviar_solicitud(emailSolicita,emailSolicitado)
+            library.enviar_solicitud(emailSolicita, emailSolicitado)
     return render_template('verUsuarios.html', usuarios=usuarios)
 
 
-@app.route('/amigos',  methods=['GET', 'POST'])
+@app.route('/amigos', methods=['GET', 'POST'])
 def mostrar_amigos():
     emailUser = request.user.email
     amigos = library.get_amigos(emailUser)
     if request.method == 'POST':
         if 'eliminar_amigo' in request.form:
-            library.eliminar_amigo(emailUser,request.form.get('email_amigo'))
+            library.eliminar_amigo(emailUser, request.form.get('email_amigo'))
         if 'verPerfil' in request.form:
             return redirect(url_for('ver_perfil', user_email=request.form.get('email_amigo')))
     return render_template('amigos.html', amigos=amigos)
+
 
 @app.route('/verPerfil', methods=['GET', 'POST'])
 def ver_perfil():
@@ -453,4 +465,5 @@ def ver_perfil():
             }
             resenas.append(resena_modificada)
 
-    return render_template('verPerfil.html', nombre=nombre,email=emailUser, amigos=amigos, reservas=reservas, resenas=resenas)
+    return render_template('verPerfil.html', nombre=nombre, email=emailUser, amigos=amigos, reservas=reservas,
+                           resenas=resenas)
