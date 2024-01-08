@@ -397,11 +397,10 @@ def mostrar_usuarios():
     usuarios = library.get_usuarios(emailSolicita)
     if request.method == 'POST':
         emailSolicitado = request.form.get('emailSolicitado')
-        if not emailSolicitado == emailSolicita:
-            library.enviar_solicitud(emailSolicita,emailSolicitado)
         if 'verPerfil' in request.form:
             return redirect(url_for('ver_perfil', user_email=request.form.get('emailSolicitado')))
-
+        if not emailSolicitado == emailSolicita:
+            library.enviar_solicitud(emailSolicita,emailSolicitado)
     return render_template('verUsuarios.html', usuarios=usuarios)
 
 

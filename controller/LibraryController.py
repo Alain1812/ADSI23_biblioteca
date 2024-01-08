@@ -431,23 +431,3 @@ class LibraryController:
              })
          return resenas
 
-    def search_users(self, query="", limit=6, page=0):
-        count = db.select("""
-            SELECT count() 
-            FROM User
-            WHERE email LIKE ? 
-        """, (f"%{query}%",))[0][0]
-
-        res = db.select("""
-            SELECT * 
-            FROM User
-            WHERE email LIKE ? 
-            LIMIT ? OFFSET ?
-        """, (f"%{query}%", limit, limit * page))
-
-        users = [
-            User(u[0], u[1], u[2])  # Ajusta según la estructura de tu tabla User
-            for u in res
-        ]
-
-        return users, count
