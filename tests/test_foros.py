@@ -9,7 +9,7 @@ class TestForos(BaseTestClass):
 
 
     def test_ver_mensajes_tema(self):
-        tema_id = 1  # Asumiendo que hay un tema con este ID
+        tema_id = 1  
         respuesta = self.client.get(f'/forums/{tema_id}')
         self.assertEqual(respuesta.status_code, 200, "Error al acceder a los mensajes del tema.")
 
