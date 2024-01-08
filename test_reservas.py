@@ -38,8 +38,8 @@ class TestGestionReservas(BaseTestClass):
     def test_reserva_copias_multiples(self):
         self.client.post('/login', data={'email': 'jhon@gmail.com', 'password': '123'})
         book_id = 12
-        self.client.get(f'/reserve/book/{book_id}')  # Primera reserva
-        respuesta = self.client.get(f'/reserve/book/{book_id}')  # Segunda reserva
+        self.client.get(f'/reserve/book/{book_id}') 
+        respuesta = self.client.get(f'/reserve/book/{book_id}')  
         self.assertNotEqual(respuesta.status_code, 20,
                                 "Se permitió la reserva de múltiples copias del mismo libro.")
 
@@ -53,6 +53,6 @@ class TestGestionReservas(BaseTestClass):
     def test_tiempo_reserva_ilogico(self):
         self.client.post('/login', data={'email': 'james@gmail.com', 'password': '123456'})
         book_id = 123
-        fecha_ilogica = '2005-01-01'  # Ejemplo de fecha ilógica
+        fecha_ilogica = '2005-01-01' 
         respuesta = self.client.get(f'/reserve/book/{book_id}?fecha={fecha_ilogica}')
         self.assertNotEqual(respuesta.status_code, 20, "Se permitió una reserva con un límite de tiempo ilógico.")
