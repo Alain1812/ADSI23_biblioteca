@@ -138,7 +138,7 @@ def post_reply(topic_id):
 
 @app.route('/admin', methods=['GET'])
 def admin_page():
-    return render_template('admin.html')  # Asumiendo que tu archivo HTML se llama 'admin.html'
+    return render_template('admin.html')  
 
 
 @app.route('/ruta_para_agregar_usuario', methods=['POST'])
@@ -181,10 +181,8 @@ def review_book(book_id):
         users.append(User(eh[0][0], eh[0][1], eh[0][2], eh[0][4]))
 
     if book_details:
-        # Renderizar 'resenas.html' con la información del libro, sus reseñas y nombres
         return render_template('resenas.html', book=book_details, reviews=reviews, users=users)
     else:
-        # Manejar el caso en que el libro no se encuentre (p.ej., redirigir a una página de error)
         return redirect(url_for('catalogue'))
 
 
@@ -365,11 +363,9 @@ def rate_book(book_id):
 
         return redirect(url_for('mis_reservas'))
 
-    # Para solicitudes GET, mostrar el formulario de reseña
-    # Asegúrate de obtener cualquier dato necesario para mostrar en el formulario, como la reseña existente
     if 'user' in dir(request) and request.user and request.user.token:
         existing_review = library.get_reviews_by_book_id_and_user(request.user.email,
-                                                                  book_id)  # Obtén la reseña existente si existe
+                                                                  book_id)  
         final = render_template('review_form.html', book_id=book_id, review=existing_review)
     else:
         final = redirect(url_for('login'))
@@ -443,7 +439,7 @@ def ver_perfil():
             reserva_modificada = {
                 'id': reserva['id'],
                 'bookID': libro_info.id,
-                'titulo_libro': libro_info.title,  # Asegúrate de que estos campos existen en tu clase Book
+                'titulo_libro': libro_info.title,  
                 'nombre_autor': libro_info.author,
                 'estado': reserva['estado'],
                 'fecha_reserva': reserva['fecha_reserva'],
@@ -458,7 +454,7 @@ def ver_perfil():
             resena_modificada = {
                 'libro_id': resena['libro_id'],
                 'bookID': libro_info.id,
-                'titulo_libro': libro_info.title,  # Asegúrate de que estos campos existen en tu clase Book
+                'titulo_libro': libro_info.title,
                 'nombre_autor': libro_info.author,
                 'mensaje': resena['mensaje'],
                 'puntuacion': resena['puntuacion'],
