@@ -416,9 +416,9 @@ class LibraryController:
     def obtener_nombre(self, user_email):
             result = db.select("SELECT name FROM User WHERE email=?", (user_email,))
             if result:
-                return result[0][0]  # Extrae el primer elemento de la primera tupla si hay resultados
+                return result[0][0] 
             else:
-                return None  # O algún valor predeterminado que desees devolver si no se encuentra el nombre
+                return None  
 
     def get_user_reviews(self,user_email):
          res=db.select("SELECT * FROM Resena WHERE email_user=?", (user_email,))
