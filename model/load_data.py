@@ -162,12 +162,10 @@ for reserva in reservas:
 	con.commit()
 
 for tema in temas:
-    # Asegúrate de que los nombres de las claves en el JSON coincidan con estos
     title = tema['titulo']
     emailUser = tema['emailUser']
     created_at = tema['created_at']
 
-    # Insertar el tema en la base de datos
     cur.execute("INSERT INTO ForumTopic (title, emailUser, created_at) VALUES (?, ?, ?)",
                 (title, emailUser, created_at))
     con.commit()
