@@ -1,6 +1,6 @@
 
 {% if review %}
-    <p>Ya has escrito una reseña para este libro. Si escribes una nueva, se sobrescribirá la anterior. Si dejas el formulario en blanco, se borrará tu reseña previa.</p>
+    <p>Ya has escrito una reseña para este libro. Si escribes una nueva, se sobrescribirá la anterior.</p>
 {% endif %}
 
 <form action="/review/rate/{{ book_id }}" method="post">
