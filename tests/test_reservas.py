@@ -1,6 +1,7 @@
 import unittest
 from . import BaseTestClass
 from bs4 import BeautifulSoup
+import datetime
 
 class TestGestionReservas(BaseTestClass):
 
@@ -23,3 +24,33 @@ class TestGestionReservas(BaseTestClass):
         self.assertTrue('Location' in respuesta.headers, "No se encontró la cabecera de redirección.")
 
 
+    def test_limite_tiempo_reserva(self):
+        self.client.post('/login', data={'email': 'james@gmail.com', 'password': '123456'})
+        reserva_id = 123
+        respuesta = self.client.get(f'/reserve/check/{reserva_id}')
+        datos_reserva = respuesta.json
+        fecha_vencimiento = datetime.datetime.strptime(datos_reserva['fecha_fin'], '%Y-%m-%d')
+        self.assertLessEqual((fecha_vencimiento - datetime.datetime.now()).days, 60,
+                                 "La reserva excede el límite de tiempo.")
+
+    def test_reserva_copias_multiples(self):
+        self.client.post('/login', data={'email': 'jhon@gmail.com', 'password': '123'})
+        book_id = 12
+        self.client.get(f'/reserve/book/{book_id}') 
+        respuesta = self.client.get(f'/reserve/book/{book_id}')  
+        self.assertNotEqual(respuesta.status_code, 20,
+                                "Se permitió la reserva de múltiples copias del mismo libro.")
+
+    def test_reservar_libro_no_disponible(self):
+        self.client.post('/login', data={'email': 'james@gmail.com', 'password': '123456'})
+        book_id = 321
+        respuesta = self.client.get(f'/reserve/book/{book_id}')
+        self.assertNotEqual(respuesta.status_code, 20, "Se permitió la reserva de un libro no disponible.")
+
+
+    def test_tiempo_reserva_ilogico(self):
+        self.client.post('/login', data={'email': 'james@gmail.com', 'password': '123456'})
+        book_id = 123
+        fecha_ilogica = '2005-01-01' 
+        respuesta = self.client.get(f'/reserve/book/{book_id}?fecha={fecha_ilogica}')
+        self.assertNotEqual(respuesta.status_code, 20, "Se permitió una reserva con un límite de tiempo ilógico.")
