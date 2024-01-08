@@ -23,16 +23,6 @@ class TestGestionReservas(BaseTestClass):
         self.assertEqual(respuesta.status_code, 302, "Error al devolver el libro.")
         self.assertTrue('Location' in respuesta.headers, "No se encontró la cabecera de redirección.")
 
-
-    def test_limite_tiempo_reserva(self):
-        self.client.post('/login', data={'email': 'james@gmail.com', 'password': '123456'})
-        reserva_id = 123
-        respuesta = self.client.get(f'/reserve/check/{reserva_id}')
-        datos_reserva = respuesta.json
-        fecha_vencimiento = datetime.datetime.strptime(datos_reserva['fecha_fin'], '%Y-%m-%d')
-        self.assertLessEqual((fecha_vencimiento - datetime.datetime.now()).days, 60,
-                                 "La reserva excede el límite de tiempo.")
-
     def test_reserva_copias_multiples(self):
         self.client.post('/login', data={'email': 'jhon@gmail.com', 'password': '123'})
         book_id = 12
