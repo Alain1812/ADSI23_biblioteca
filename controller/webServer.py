@@ -357,8 +357,8 @@ def rate_book(book_id):
         review_text = request.form['review']
         rating = request.form['rating']
         user_email = request.user.email
-
-        library.add_or_update_review(user_email, book_id, review_text, rating)
+	if 0 < int(rating) <= 10:
+        	library.add_or_update_review(user_email, book_id, review_text, rating)
 
         return redirect(url_for('mis_reservas'))
 
