@@ -15,7 +15,6 @@ class test_recomendaciones(BaseTestClass):
 
     def test_recomendaciones_sin_usuario(self):
         res = self.client.get('/recomendaciones')
-        # Devuelve un error ya que no puede hacer recomendaciones sin estár logeado
         self.assertEqual(500, res.status_code)
 
     def test_recomendaciones_con_usuario(self):
@@ -28,7 +27,7 @@ class test_recomendaciones(BaseTestClass):
         self.login('ejemplo@gmail.com', '123456')
         total_books = 0
         current_page = 1
-        total_pages = 4  # Calculado como 20 libros / 6 libros por página
+        total_pages = 4  
 
         while current_page <= total_pages:
             res = self.client.get(f'/recomendaciones?page={current_page}')
@@ -40,7 +39,6 @@ class test_recomendaciones(BaseTestClass):
 
     def test_recomendaciones_cambio_historial(self):
         self.login('ejemplo@gmail.com', '123456')
-        # Simular cambios en el historial de reservas (insertar datos de prueba en la base de datos)
         cursor.execute("""INSERT INTO Reserva (emailUser, bookID, estado, fecha_reserva, fecha_fin) VALUES ('ejemplo@gmail.com', 2, 'Activa', '2021-01-01', '2021-01-10')""")
         conexion.commit()
         res = self.client.get('/recomendaciones')
@@ -53,13 +51,12 @@ class test_recomendaciones(BaseTestClass):
         libros_reservados_ids = self.obtener_libros_reservados_ids('ejemplo@gmail.com')
 
         libros_recomendados_ids = []
-        for page_num in range(1, 5):  # Para 4 páginas de recomendaciones
+        for page_num in range(1, 5):  
             res = self.client.get(f'/recomendaciones?page={page_num}')
             page = BeautifulSoup(res.data, features="html.parser")
             libros_recomendados = page.find_all('div', class_='card')
             libros_recomendados_ids.extend([self.extract_book_id(libro) for libro in libros_recomendados])
 
-        # Verificar que ninguno de los libros recomendados esté en el historial de reservas
         for libro_id in libros_recomendados_ids:
             self.assertNotIn(libro_id, libros_reservados_ids,
                              "Un libro recomendado está en el historial de reservas del usuario")
