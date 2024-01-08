@@ -10,6 +10,10 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 db_path = os.path.join(script_dir, '..', 'datos.db')
 conexion = sqlite3.connect(db_path)
 cursor = conexion.cursor()
+
+#antes de hacer este test hay que descargarlo de github de 0 ya que otros tests pueden tocar la base de datos y con ello hacer que de error
+
+
 class test_resenas (BaseTestClass):
 
     def test_resenassinlogear(self):
