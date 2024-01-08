@@ -81,14 +81,12 @@ class test_recomendaciones(BaseTestClass):
     def extract_book_id(self, libro_div):
         enlace = libro_div.find('a', href=True)
         if enlace:
-
             return enlace['href'].split('/')[-1]
         return None
 
     def tearDown(self):
 
         conexion.commit()
-        o
 
 
 
