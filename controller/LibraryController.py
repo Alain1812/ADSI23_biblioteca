@@ -195,7 +195,7 @@ class LibraryController:
             print("Usuarios que han leido:", book_id)
             print("Lista:", users_who_reserved)
             for user_id in users_who_reserved:
-                # Verificar si el usuario actual no es el usuario solicitante
+                # Verificar si el usuario actual no es el usuario solicitante para no añadirlo a la lista
                 if user_id != requesting_user_email:
                     if user_id in user_count_map:
                         user_count_map[user_id] += 1
@@ -221,7 +221,7 @@ class LibraryController:
             books_reserved_by_user = self.get_books_reserved_by_user(emailUser)
 
             for book_id in books_reserved_by_user:
-                # Verificar si el usuario solicitante no ha reservado el libro
+                # Verificar si el usuario solicitante no ha reservado el libro para no añadirlo a los libros recomendados
                 if not self.has_user_reserved_book(requesting_user_email, book_id):
                     if book_id in book_count_map:
                         book_count_map[book_id] += 1
