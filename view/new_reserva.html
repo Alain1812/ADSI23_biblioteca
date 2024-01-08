@@ -42,12 +42,9 @@
 
 <script>
     window.onload = function() {
-        // Establecer la fecha de inicio a hoy y hacerla de solo lectura
         let startDate = document.getElementById('startDate');
         let today = new Date().toISOString().split('T')[0];
         startDate.value = today;
-
-        // Establecer la fecha máxima de finalización a dos meses desde hoy
         let endDate = document.getElementById('endDate');
         let maxDate = new Date();
         maxDate.setMonth(maxDate.getMonth() + 2);
