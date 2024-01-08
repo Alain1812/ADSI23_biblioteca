@@ -345,30 +345,25 @@ def return_reserva(reserva_id):
     library.return_reserva(reserva_id)
     return redirect(url_for('mis_reservas'))
 
-
-
-
-
-
-
 @app.route('/review/rate/<int:book_id>', methods=['GET', 'POST'])
 def rate_book(book_id):
     if request.method == 'POST':
         review_text = request.form['review']
         rating = request.form['rating']
         user_email = request.user.email
-	if 0 < int(rating) <= 10:
-        	library.add_or_update_review(user_email, book_id, review_text, rating)
+        if 0 < int(rating) <= 10:
+            library.add_or_update_review(user_email, book_id, review_text, rating)
 
         return redirect(url_for('mis_reservas'))
 
     # Para solicitudes GET, mostrar el formulario de reseña
     # Asegúrate de obtener cualquier dato necesario para mostrar en el formulario, como la reseña existente
     if 'user' in dir(request) and request.user and request.user.token:
-        existing_review = library.get_reviews_by_book_id_and_user( request.user.email , book_id)  # Obtén la reseña existente si existe
-        final= render_template('review_form.html', book_id=book_id, review=existing_review)
+        existing_review = library.get_reviews_by_book_id_and_user(request.user.email,
+                                                                  book_id)  # Obtén la reseña existente si existe
+        final = render_template('review_form.html', book_id=book_id, review=existing_review)
     else:
-        final= redirect(url_for('login'))
+        final = redirect(url_for('login'))
     return final
 
 ###RED DE AMIGOS####
