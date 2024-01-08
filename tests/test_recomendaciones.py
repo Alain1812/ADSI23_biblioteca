@@ -81,16 +81,15 @@ class test_recomendaciones(BaseTestClass):
     def extract_book_id(self, libro_div):
         enlace = libro_div.find('a', href=True)
         if enlace:
-            # Suponiendo que el URL es algo como '/review/book/1'
+
             return enlace['href'].split('/')[-1]
         return None
 
     def tearDown(self):
-        # Limpiar cualquier dato insertado en la base de datos para evitar afectar otras pruebas
-        #cursor.execute("""DELETE FROM Reserva WHERE emailUser = 'ejemplo@gmail.com'""")
+
         conexion.commit()
-        # Asegúrate de cerrar sesión si es necesario
+        o
 
 
 
-# Agrega aquí cualquier método adicional que necesites, como login, logout, etc., si no están ya en BaseTestClass
+
